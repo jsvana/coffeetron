@@ -25,7 +25,7 @@
 
 #define DESIRED_WEIGHT_IN_GRAMS 38.0
 #define FLUSH_TIME_MILLIS 1000
-#define PREINFUSE_PUMP_TIME_MILLIS 2000
+#define PREINFUSE_PUMP_TIME_MILLIS 3000
 #define PREINFUSE_TIME_MILLIS 7000
 
 #define OLED_RESET -1
@@ -147,6 +147,9 @@ void setup() {
   pinMode(FLUSH_BUTTON, INPUT);
   pinMode(LED, OUTPUT);
   pinMode(PUMP, OUTPUT);
+
+  display.clearDisplay();
+  display.display();
 }
 
 float temp_in_fahrenheit(int pin) {
@@ -331,7 +334,7 @@ void flushing_display(const BrewData& data) {
 
 void loop() {
   pump_temps.add_value(temp_in_fahrenheit(A0));
-  grouphead_temps.add_value(temp_in_fahrenheit(A0));
+  grouphead_temps.add_value(temp_in_fahrenheit(A1));
   weights.add_value(scale.get_units());
 
   windows_read += 1;
