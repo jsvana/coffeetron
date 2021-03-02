@@ -41,6 +41,14 @@ int has_most_recent_pour = FALSE;
 unsigned long last_pour_seconds;
 float last_pour_weight;
 
+enum State {
+  Waiting,
+  Flushing,
+  Brewing,
+};
+
+State state = State::Waiting;
+
 // Cute coffee cup bitmap to display, 128x32 pixels
 const unsigned char coffee_bitmap[] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -77,6 +85,14 @@ const unsigned char coffee_bitmap[] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
+class BrewData {
+ public:
+  unsigned long now;
+  float pump_temp;
+  float grouphead_temp;
+  float weight;
+};
+
 void setup() {
   Serial.begin(9600);
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
@@ -104,79 +120,76 @@ float temp_in_fahrenheit(int pin) {
   return ((temp_in_kelvin - CELCIUS_OFFSET) * 1.8) + 32;
 }
 
-void loop() {
-  unsigned long now = millis();
-
-  // TODO: state machine
-
-  // Start pouring if we're not already pouring
-  if (!flushing && !running && digitalRead(BREW_BUTTON) == HIGH) {
-    start_millis = now;
-    running = TRUE;
-    scale.tare();
-  }
-
-  if (!flushing && !running && digitalRead(FLUSH_BUTTON) == HIGH) {
-    start_millis = now;
-    flushing = TRUE;
-  }
-
-  if (flushing && now - start_millis > FLUSH_TIME_MILLIS) {
-    flushing = FALSE;
-  }
-
-  // Gather measurements
-  float pump_temp = temp_in_fahrenheit(A0);
-  float grouphead_temp = temp_in_fahrenheit(A1);
-  float weight = scale.get_units(5);
-
-  // Stop pouring if we've reached our target weight
-  if (running && weight > DESIRED_WEIGHT_IN_GRAMS) {
-    running = FALSE;
+State waiting_update(const BrewData& data) {
+  if (digitalRead(BREW_BUTTON) == HIGH) {
+    start_millis = data.now;
     scale.tare();
 
-    last_pour_seconds = (now - start_millis) / 1000;
-    last_pour_weight = weight;
+    return State::Brewing;
+  }
+
+  if (digitalRead(FLUSH_BUTTON) == HIGH) {
+    start_millis = data.now;
+
+    return State::Flushing;
+  }
+
+  return State::Waiting;
+}
+
+State brewing_update(const BrewData& data) {
+  if (data.weight > DESIRED_WEIGHT_IN_GRAMS) {
+    scale.tare();
+
+    last_pour_seconds = (data.now - start_millis) / 1000;
+    last_pour_weight = data.weight;
 
     has_most_recent_pour = TRUE;
+
+    return State::Waiting;
   }
 
-  digitalWrite(LED, (running || flushing) ? HIGH : LOW);
-  digitalWrite(PUMP, (running || flushing) ? HIGH : LOW);
+  return State::Brewing;
+}
 
-  // Display measurements
-  display.clearDisplay();
+State flushing_update(const BrewData& data) {
+  if (data.now - start_millis > FLUSH_TIME_MILLIS) {
+    return State::Waiting;
+  }
 
+  return State::Flushing;
+}
+
+void waiting_set_outputs() {
+  digitalWrite(LED, LOW);
+  digitalWrite(PUMP, LOW);
+}
+
+void brewing_set_outputs() {
+  digitalWrite(LED, HIGH);
+  digitalWrite(PUMP, HIGH);
+}
+
+void flushing_set_outputs() {
+  digitalWrite(LED, HIGH);
+  digitalWrite(PUMP, HIGH);
+}
+
+void waiting_display(const BrewData& data) {
   display.setTextSize(2);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
 
-  if (running) {
-    display.println(F("Brewing..."));
-  } else if (flushing) {
-    display.println(F("Flushing..."));
-  } else {
-    display.println(F("Coffeetron"));
-  }
+  display.println(F("Coffeetron"));
 
   display.setTextSize(1);
 
   display.print(F("Pump temp: "));
-  display.print(pump_temp);
+  display.print(data.pump_temp);
   display.println(F("F"));
   display.print(F("GH temp: "));
-  display.print(grouphead_temp);
+  display.print(data.grouphead_temp);
   display.println(F("F"));
 
-  if (running) {
-    display.print(F("Weight: "));
-    display.print(weight);
-    display.println(F("g"));
-
-    display.print(F("Elapsed: "));
-    display.print((now - start_millis) / 1000);
-    display.println(F("s"));
-  } else if (!flushing && has_most_recent_pour) {
+  if (has_most_recent_pour) {
     display.println(F("Most recent pour:"));
     display.print(F(" Total time: "));
     display.print(last_pour_seconds);
@@ -186,6 +199,78 @@ void loop() {
     display.println(F("g"));
   } else {
     display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+  }
+}
+
+void brewing_display(const BrewData& data) {
+  display.setTextSize(2);
+
+  display.println(F("Brewing..."));
+
+  display.setTextSize(1);
+
+  display.print(F("Pump temp: "));
+  display.print(data.pump_temp);
+  display.println(F("F"));
+  display.print(F("GH temp: "));
+  display.print(data.grouphead_temp);
+  display.println(F("F"));
+
+  display.print(F("Weight: "));
+  display.print(data.weight);
+  display.println(F("g"));
+
+  display.print(F("Elapsed: "));
+  display.print((data.now - start_millis) / 1000);
+  display.println(F("s"));
+}
+
+void flushing_display(const BrewData& data) {
+  display.setTextSize(2);
+
+  display.println(F("Flushing..."));
+
+  display.setTextSize(1);
+
+  display.print(F("Pump temp: "));
+  display.print(data.pump_temp);
+  display.println(F("F"));
+  display.print(F("GH temp: "));
+  display.print(data.grouphead_temp);
+  display.println(F("F"));
+
+  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+}
+
+void loop() {
+  // Gather measurements
+  const BrewData data = BrewData {
+    millis(),
+    temp_in_fahrenheit(A0),
+    temp_in_fahrenheit(A1),
+    scale.get_units(5),
+  };
+
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.setTextColor(SSD1306_WHITE);
+
+  switch (state) {
+    case State::Waiting:
+      state = waiting_update(data);
+      waiting_set_outputs();
+      waiting_display(data);
+      break;
+    case State::Brewing:
+      state = brewing_update(data);
+      brewing_set_outputs();
+      brewing_display(data);
+      break;
+    case State::Flushing:
+      state = flushing_update(data);
+      flushing_set_outputs();
+      flushing_display(data);
+      break;
   }
 
   display.display();
