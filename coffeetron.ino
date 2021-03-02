@@ -8,9 +8,10 @@
 
 #define HX711_CLK  2
 #define HX711_DOUT  3
-#define BUTTON_IN 4
+#define BREW_BUTTON 4
 #define LED 5
 #define PUMP 6
+#define FLUSH_BUTTON 7
 
 #define VCC 5.0
 #define ANALOG_MAX 1023
@@ -21,6 +22,7 @@
 #define CELCIUS_OFFSET 273.15
 
 #define DESIRED_WEIGHT_IN_GRAMS 38.0
+#define FLUSH_TIME_MILLIS 1000
 
 #define OLED_RESET -1
 
@@ -31,6 +33,7 @@ HX711 scale;
 float calibration_factor = 416;
 
 int running = FALSE;
+int flushing = FALSE;
 
 unsigned long start_millis = 0;
 
@@ -85,7 +88,8 @@ void setup() {
   scale.set_scale(calibration_factor);
   scale.tare();
 
-  pinMode(BUTTON_IN, INPUT);
+  pinMode(BREW_BUTTON, INPUT);
+  pinMode(FLUSH_BUTTON, INPUT);
   pinMode(LED, OUTPUT);
   pinMode(PUMP, OUTPUT);
 }
@@ -103,16 +107,27 @@ float temp_in_fahrenheit(int pin) {
 void loop() {
   unsigned long now = millis();
 
+  // TODO: state machine
+
   // Start pouring if we're not already pouring
-  if (!running && digitalRead(BUTTON_IN) == HIGH) {
+  if (!flushing && !running && digitalRead(BREW_BUTTON) == HIGH) {
     start_millis = now;
     running = TRUE;
     scale.tare();
   }
 
+  if (!flushing && !running && digitalRead(FLUSH_BUTTON) == HIGH) {
+    start_millis = now;
+    flushing = TRUE;
+  }
+
+  if (flushing && now - start_millis > FLUSH_TIME_MILLIS) {
+    flushing = FALSE;
+  }
+
   // Gather measurements
-  float grouphead_temp = temp_in_fahrenheit(A0);
-  float wand_temp = temp_in_fahrenheit(A1);
+  float pump_temp = temp_in_fahrenheit(A0);
+  float grouphead_temp = temp_in_fahrenheit(A1);
   float weight = scale.get_units(5);
 
   // Stop pouring if we've reached our target weight
@@ -126,8 +141,8 @@ void loop() {
     has_most_recent_pour = TRUE;
   }
 
-  digitalWrite(LED, running ? HIGH : LOW);
-  digitalWrite(PUMP, running ? HIGH : LOW);
+  digitalWrite(LED, (running || flushing) ? HIGH : LOW);
+  digitalWrite(PUMP, (running || flushing) ? HIGH : LOW);
 
   // Display measurements
   display.clearDisplay();
@@ -138,17 +153,19 @@ void loop() {
 
   if (running) {
     display.println(F("Brewing..."));
+  } else if (flushing) {
+    display.println(F("Flushing..."));
   } else {
     display.println(F("Coffeetron"));
   }
 
   display.setTextSize(1);
 
+  display.print(F("Pump temp: "));
+  display.print(pump_temp);
+  display.println(F("F"));
   display.print(F("GH temp: "));
   display.print(grouphead_temp);
-  display.println(F("F"));
-  display.print(F("Wand temp: "));
-  display.print(wand_temp);
   display.println(F("F"));
 
   if (running) {
@@ -159,7 +176,7 @@ void loop() {
     display.print(F("Elapsed: "));
     display.print((now - start_millis) / 1000);
     display.println(F("s"));
-  } else if (has_most_recent_pour) {
+  } else if (!flushing && has_most_recent_pour) {
     display.println(F("Most recent pour:"));
     display.print(F(" Total time: "));
     display.print(last_pour_seconds);
