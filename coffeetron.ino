@@ -13,6 +13,8 @@
 #define PUMP 6
 #define FLUSH_BUTTON 7
 
+#define SAMPLE_COUNT 5
+
 #define VCC 5.0
 #define ANALOG_MAX 1023
 #define THERMISTOR_PAIRED_RESISTOR 10000.0
@@ -137,6 +139,39 @@ State waiting_update(const BrewData& data) {
   return State::Waiting;
 }
 
+template <int S>
+class WindowedReading {
+  float values[S];
+  int index = 0;
+
+ public:
+  WindowedReading() {
+    for (int i = 0; i < S; i++) {
+      values[i] = 0.0;
+    }
+  }
+
+  void add_value(float value) {
+    values[index] = value;
+    index = (index + 1) % S;
+  }
+
+  float average_reading() {
+    float sum = 0;
+    for (int i = 0; i < S; i++) {
+      sum += values[i];
+    }
+
+    return sum / S;
+  }
+};
+
+WindowedReading<SAMPLE_COUNT> pump_temps;
+WindowedReading<SAMPLE_COUNT> grouphead_temps;
+WindowedReading<SAMPLE_COUNT> weights;
+
+unsigned int windows_read = 0;
+
 State brewing_update(const BrewData& data) {
   if (data.weight > DESIRED_WEIGHT_IN_GRAMS) {
     scale.tare();
@@ -243,12 +278,23 @@ void flushing_display(const BrewData& data) {
 }
 
 void loop() {
+  pump_temps.add_value(temp_in_fahrenheit(A0));
+  grouphead_temps.add_value(temp_in_fahrenheit(A0));
+  weights.add_value(scale.get_units());
+
+  windows_read += 1;
+
+  if (windows_read % SAMPLE_COUNT != 0) {
+    delayMicroseconds(100);
+    return;
+  }
+
   // Gather measurements
   const BrewData data = BrewData {
     millis(),
-    temp_in_fahrenheit(A0),
-    temp_in_fahrenheit(A1),
-    scale.get_units(5),
+    pump_temps.average_reading(),
+    grouphead_temps.average_reading(),
+    weights.average_reading(),
   };
 
   display.clearDisplay();
