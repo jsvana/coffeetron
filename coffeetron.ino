@@ -6,8 +6,8 @@
 #define FALSE 0
 #define TRUE 1
 
-#define HX711_CLK  2
-#define HX711_DOUT  3
+#define HX711_CLK  8
+#define HX711_DOUT  9
 #define BREW_BUTTON 4
 #define LED 5
 #define PUMP 6
@@ -171,7 +171,33 @@ public:
     pinMode(button_pin_, INPUT_PULLUP);
   }
 
+  void update_clk_on_change() {
+    if (last_clk_state_ == HIGH) {
+      last_clk_state_ = LOW;
+    } else {
+      last_clk_state_ = HIGH;
+    }
+
+    // TODO: == HIGH
+    if (last_dt_state_ && last_clk_state_ == HIGH) {
+      value_ -= 1;
+    }
+  }
+
+  void update_dt_on_change() {
+    if (last_dt_state_ == HIGH) {
+      last_dt_state_ = LOW;
+    } else {
+      last_dt_state_ = HIGH;
+    }
+
+    if (last_clk_state_ && last_dt_state_ == HIGH) {
+      value_ += 1;
+    }
+  }
+
   void update(const unsigned long now) {
+    /*
     int current_clk_state = digitalRead(clk_pin_);
     int current_dt_state = digitalRead(dt_pin_);
 
@@ -185,6 +211,7 @@ public:
 
     last_clk_state_ = current_clk_state;
     last_dt_state_ = current_dt_state;
+    */
 
     int current_button_state = digitalRead(button_pin_);
 
@@ -200,6 +227,14 @@ public:
         button_state_ = current_button_state;
       }
     }
+  }
+
+  int clk_pin() {
+    return clk_pin_;
+  }
+
+  int dt_pin() {
+    return dt_pin_;
   }
 
   void set_value(int value) {
@@ -222,7 +257,7 @@ WindowedReading<SAMPLE_COUNT> pump_temps;
 WindowedReading<SAMPLE_COUNT> grouphead_temps;
 WindowedReading<SAMPLE_COUNT> weights;
 
-RotaryEncoderWithButton encoder{8, 9, 10};
+RotaryEncoderWithButton encoder{2, 3, 10};
 
 unsigned int windows_read = 0;
 
@@ -243,6 +278,11 @@ void setup() {
   pinMode(PUMP, OUTPUT);
 
   encoder.set_value(38);
+
+  /*
+  attachInterrupt(digitalPinToInterrupt(encoder.clk_pin()), update_encoder_clk, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(encoder.dt_pin()), update_encoder_dt, CHANGE);
+  */
 
   display.clearDisplay();
   display.display();
@@ -351,14 +391,9 @@ void waiting_display(const BrewData& data) {
 
   display.setTextSize(1);
 
-  /*
   display.print(F("Pump temp: "));
   display.print(data.pump_temp);
   display.println(F("F"));
-  */
-  display.print(F("Target weight: "));
-  display.print(desired_weight_in_grams);
-  display.println(F("g"));
   display.print(F("GH temp: "));
   display.print(data.grouphead_temp);
   display.println(F("F"));
@@ -436,6 +471,14 @@ void flushing_display(const BrewData& data) {
   display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
 }
 
+void update_encoder_clk() {
+  encoder.update_clk_on_change();
+}
+
+void update_encoder_dt() {
+  encoder.update_dt_on_change();
+}
+
 void loop() {
   pump_temps.add_value(temp_in_fahrenheit(A0));
   grouphead_temps.add_value(temp_in_fahrenheit(A1));
@@ -445,7 +488,7 @@ void loop() {
 
   auto now = millis();
 
-  encoder.update(now);
+  /*encoder.update(now);*/
 
   if (windows_read % SAMPLE_COUNT != 0) {
     delayMicroseconds(100);
