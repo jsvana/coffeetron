@@ -18,6 +18,8 @@ int desired_weight_in_grams;
 int desired_preinfuse_pump_time_in_milliseconds;
 int desired_preinfuse_wait_time_in_milliseconds;
 
+bool preinfusion_enabled;
+
 unsigned long state_start_millis = 0;
 
 bool has_most_recent_pour = false;
@@ -33,6 +35,7 @@ enum State {
   Waiting,
 
   ConfigureWeight,
+  ConfigurePreinfuseEnabled,
   ConfigurePreinfusePumpTime,
   ConfigurePreinfuseWaitTime,
 
@@ -59,7 +62,11 @@ State waiting_tick() {
   if (brew_button.fell()) {
     scale.tare();
 
-    next_state = State::Preinfusing;
+    if (preinfusion_enabled) {
+      next_state = State::Preinfusing;
+    } else {
+      next_state = State::Brewing;
+    }
   } else if (flush_button.fell()) {
     next_state = State::Flushing;
   } else if (encoder_button.fell()) {
@@ -106,8 +113,8 @@ State configure_weight_tick() {
 
   State next_state;
   if (encoder_button.fell()) {
-    encoder.write(desired_preinfuse_pump_time_in_milliseconds * 4 / 1000);
-    next_state = State::ConfigurePreinfusePumpTime;
+    encoder.write(preinfusion_enabled ? 4 : 0);
+    next_state = State::ConfigurePreinfuseEnabled;
   } else {
     next_state = State::ConfigureWeight;
   }
@@ -120,6 +127,37 @@ State configure_weight_tick() {
 
   display.print(desired_weight_in_grams);
   display.println(F("g"));
+
+  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+
+  return next_state;
+}
+
+State configure_preinfuse_enabled_tick() {
+  const auto state = encoder.read() / 4;
+  preinfusion_enabled = state % 2 == 1;
+
+  encoder_button.update();
+
+  State next_state;
+  if (encoder_button.fell()) {
+    if (preinfusion_enabled) {
+      encoder.write(desired_preinfuse_pump_time_in_milliseconds * 4 / 1000);
+      next_state = State::ConfigurePreinfusePumpTime;
+    } else {
+      next_state = State::Waiting;
+    }
+  } else {
+    next_state = State::ConfigurePreinfuseEnabled;
+  }
+
+  pump_off();
+
+  display.setTextSize(1);
+
+  display.println(F("Enable preinfusion?"));
+
+  display.print(preinfusion_enabled ? "yes" : "no");
 
   display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
 
@@ -358,6 +396,10 @@ void set_new_state(const State &state) {
     tick_func = &configure_weight_tick;
     break;
 
+  case State::ConfigurePreinfuseEnabled:
+    tick_func = &configure_preinfuse_enabled_tick;
+    break;
+
   case State::ConfigurePreinfusePumpTime:
     tick_func = &configure_preinfuse_pump_time_tick;
     break;
@@ -418,6 +460,8 @@ void setup() {
       INITIAL_DESIRED_PREINFUSE_PUMP_TIME_MILLISECONDS;
   desired_preinfuse_wait_time_in_milliseconds =
       INITIAL_DESIRED_PREINFUSE_WAIT_TIME_MILLISECONDS;
+
+  preinfusion_enabled = true;
 
   set_new_state(State::Waiting);
 
