@@ -23,13 +23,15 @@ float last_pour_weight;
 
 enum State {
   Waiting,
-  Flushing,
   Preinfusing,
   WaitingAfterPreinfusing,
   Brewing,
+  Flushing,
+
+  Error,
 };
 
-State current_state = State::Waiting;
+State current_state;
 
 RotaryEncoderWithButton encoder{2, 3, 10};
 
@@ -178,7 +180,7 @@ State brewing_tick() {
   return next_state;
 }
 
-void flushing_tick() {
+State flushing_tick() {
   State next_state;
   if (millis() - state_start_millis > FLUSH_TIME_MILLIS) {
     next_state = State::Waiting;
@@ -206,7 +208,23 @@ void flushing_tick() {
   return next_state;
 }
 
-void set_function_for_state(const State &state) {
+State error_tick() {
+  display.setTextSize(2);
+
+  display.println(F("ERROR"));
+
+  display.setTextSize(1);
+  display.print(F("Unknown state \""));
+  display.print(current_state);
+  display.println(F("\""));
+
+  return State::Error;
+}
+
+void set_new_state(const State &state) {
+  state_start_millis = millis();
+  current_state = state;
+
   switch (state) {
   case State::Waiting:
     tick_func = &waiting_tick;
@@ -218,7 +236,6 @@ void set_function_for_state(const State &state) {
 
   case State::Preinfusing:
     tick_func = &preinfusing_tick;
-
     break;
 
   case State::WaitingAfterPreinfusing:
@@ -227,6 +244,11 @@ void set_function_for_state(const State &state) {
 
   case State::Brewing:
     tick_func = &brewing_tick;
+    break;
+
+  case State::Error:
+  default:
+    tick_func = &error_tick;
     break;
   }
 }
@@ -250,7 +272,7 @@ void setup() {
 
   encoder.set_value(38);
 
-  set_function_for_state(current_state);
+  set_new_state(State::Waiting);
 
   /*
   attachInterrupt(digitalPinToInterrupt(encoder.clk_pin()), update_encoder_clk,
@@ -276,13 +298,10 @@ void loop() {
   display.setCursor(0, 0);
   display.setTextColor(SSD1306_WHITE);
 
-  State prev_state = current_state;
+  State new_state = tick_func();
 
-  current_state = tick_func();
-
-  if (prev_state != current_state) {
-    state_start_millis = millis();
-    set_function_for_state(current_state);
+  if (current_state != new_state) {
+    set_new_state(new_state);
   }
 
   display.display();
