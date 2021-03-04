@@ -15,6 +15,8 @@ HX711 scale;
 float calibration_factor = 416;
 
 int desired_weight_in_grams;
+int desired_preinfuse_pump_time_in_milliseconds;
+int desired_preinfuse_wait_time_in_milliseconds;
 
 unsigned long state_start_millis = 0;
 
@@ -31,6 +33,8 @@ enum State {
   Waiting,
 
   ConfigureWeight,
+  ConfigurePreinfusePumpTime,
+  ConfigurePreinfuseWaitTime,
 
   Preinfusing,
   WaitingAfterPreinfusing,
@@ -59,6 +63,7 @@ State waiting_tick() {
   } else if (flush_button.fell()) {
     next_state = State::Flushing;
   } else if (encoder_button.fell()) {
+    encoder.write(desired_weight_in_grams * 4);
     next_state = State::ConfigureWeight;
   } else {
     next_state = State::Waiting;
@@ -101,21 +106,74 @@ State configure_weight_tick() {
 
   State next_state;
   if (encoder_button.fell()) {
-    next_state = State::Waiting;
+    encoder.write(desired_preinfuse_pump_time_in_milliseconds * 4 / 1000);
+    next_state = State::ConfigurePreinfusePumpTime;
   } else {
     next_state = State::ConfigureWeight;
   }
 
   pump_off();
 
-  display.setTextSize(2);
-
-  display.println(F("Weight"));
-
   display.setTextSize(1);
+
+  display.println(F("Set target weight"));
 
   display.print(desired_weight_in_grams);
   display.println(F("g"));
+
+  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+
+  return next_state;
+}
+
+State configure_preinfuse_pump_time_tick() {
+  desired_preinfuse_pump_time_in_milliseconds = encoder.read() / 4 * 1000;
+
+  encoder_button.update();
+
+  State next_state;
+  if (encoder_button.fell()) {
+    encoder.write(desired_preinfuse_wait_time_in_milliseconds * 4 / 1000);
+    next_state = State::ConfigurePreinfuseWaitTime;
+  } else {
+    next_state = State::ConfigurePreinfusePumpTime;
+  }
+
+  pump_off();
+
+  display.setTextSize(1);
+
+  display.println(F("Set preinfuse pump time"));
+
+  display.print(desired_preinfuse_pump_time_in_milliseconds / 1000);
+  display.println(F("s"));
+
+  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+
+  return next_state;
+}
+
+State configure_preinfuse_wait_time_tick() {
+  desired_preinfuse_wait_time_in_milliseconds = encoder.read() / 4 * 1000;
+
+  encoder_button.update();
+
+  State next_state;
+  if (encoder_button.fell()) {
+    next_state = State::Waiting;
+  } else {
+    next_state = State::ConfigurePreinfuseWaitTime;
+  }
+
+  pump_off();
+
+  display.setTextSize(1);
+
+  display.println(F("Set preinfuse wait time"));
+
+  display.print(desired_preinfuse_wait_time_in_milliseconds / 1000);
+  display.println(F("s"));
+
   display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
 
   return next_state;
@@ -125,7 +183,7 @@ State preinfusing_tick() {
   const auto now = millis();
 
   State next_state;
-  if (now - state_start_millis > PREINFUSE_PUMP_TIME_MILLIS) {
+  if (now - state_start_millis > desired_preinfuse_pump_time_in_milliseconds) {
     next_state = State::WaitingAfterPreinfusing;
   } else {
     next_state = State::Preinfusing;
@@ -140,7 +198,8 @@ State preinfusing_tick() {
   display.setTextSize(1);
 
   display.println(F("Pumping"));
-  display.print((state_start_millis + PREINFUSE_PUMP_TIME_MILLIS - now + 500) /
+  display.print((state_start_millis +
+                 desired_preinfuse_pump_time_in_milliseconds - now + 500) /
                 1000);
   display.println(F("s remaining"));
 
@@ -160,7 +219,7 @@ State waiting_after_preinfusing_tick() {
   const auto now = millis();
 
   State next_state;
-  if (now - state_start_millis > PREINFUSE_TIME_MILLIS) {
+  if (now - state_start_millis > desired_preinfuse_wait_time_in_milliseconds) {
     next_state = State::Brewing;
   } else {
     next_state = State::WaitingAfterPreinfusing;
@@ -176,7 +235,8 @@ State waiting_after_preinfusing_tick() {
   display.setTextSize(1);
 
   display.println(F("Waiting"));
-  display.print((state_start_millis + PREINFUSE_TIME_MILLIS - now + 500) /
+  display.print((state_start_millis +
+                 desired_preinfuse_wait_time_in_milliseconds - now + 500) /
                 1000);
   display.println(F("s remaining"));
 
@@ -298,6 +358,14 @@ void set_new_state(const State &state) {
     tick_func = &configure_weight_tick;
     break;
 
+  case State::ConfigurePreinfusePumpTime:
+    tick_func = &configure_preinfuse_pump_time_tick;
+    break;
+
+  case State::ConfigurePreinfuseWaitTime:
+    tick_func = &configure_preinfuse_wait_time_tick;
+    break;
+
   case State::Flushing:
     tick_func = &flushing_tick;
     break;
@@ -345,8 +413,11 @@ void setup() {
   encoder_button.attach(10, INPUT_PULLUP);
   encoder_button.interval(25);
 
-  encoder.write(INITIAL_DESIRED_WEIGHT_GRAMS * 4);
   desired_weight_in_grams = INITIAL_DESIRED_WEIGHT_GRAMS;
+  desired_preinfuse_pump_time_in_milliseconds =
+      INITIAL_DESIRED_PREINFUSE_PUMP_TIME_MILLISECONDS;
+  desired_preinfuse_wait_time_in_milliseconds =
+      INITIAL_DESIRED_PREINFUSE_WAIT_TIME_MILLISECONDS;
 
   set_new_state(State::Waiting);
 
