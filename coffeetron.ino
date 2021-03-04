@@ -109,6 +109,11 @@ State waiting_tick() {
 State configure_weight_tick() {
   desired_weight_in_grams = encoder.read() / 4;
 
+  if (desired_weight_in_grams < 1) {
+    desired_weight_in_grams = 1;
+    encoder.write(4);
+  }
+
   encoder_button.update();
 
   State next_state;
@@ -134,8 +139,14 @@ State configure_weight_tick() {
 }
 
 State configure_preinfuse_enabled_tick() {
-  const auto state = encoder.read() / 4;
-  preinfusion_enabled = state % 2 == 1;
+  auto encoder_value = encoder.read() / 4;
+
+  if (encoder_value < 0) {
+    encoder_value = 1;
+    encoder.write(4);
+  }
+
+  preinfusion_enabled = encoder_value % 2 == 1;
 
   encoder_button.update();
 
@@ -165,7 +176,14 @@ State configure_preinfuse_enabled_tick() {
 }
 
 State configure_preinfuse_pump_time_tick() {
-  desired_preinfuse_pump_time_in_milliseconds = encoder.read() / 4 * 1000;
+  auto encoder_value = encoder.read() / 4;
+
+  if (encoder_value < 0) {
+    encoder_value = 0;
+    encoder.write(0);
+  }
+
+  desired_preinfuse_pump_time_in_milliseconds = encoder_value * 1000;
 
   encoder_button.update();
 
@@ -192,7 +210,14 @@ State configure_preinfuse_pump_time_tick() {
 }
 
 State configure_preinfuse_wait_time_tick() {
-  desired_preinfuse_wait_time_in_milliseconds = encoder.read() / 4 * 1000;
+  auto encoder_value = encoder.read() / 4;
+
+  if (encoder_value < 0) {
+    encoder_value = 0;
+    encoder.write(0);
+  }
+
+  desired_preinfuse_wait_time_in_milliseconds = encoder_value * 1000;
 
   encoder_button.update();
 
