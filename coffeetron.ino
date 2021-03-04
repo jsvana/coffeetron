@@ -1,13 +1,12 @@
 #include <Adafruit_SSD1306.h>
+#include <Bounce2.h>
+#include <Encoder.h>
 #include <HX711.h>
 #include <SPI.h>
 #include <Wire.h>
 
 #include "constants.h"
-#include "rotary_encoder.h"
 #include "util.h"
-
-int desired_weight_in_grams = 38;
 
 Adafruit_SSD1306 display(128, 64, &Wire, -1);
 HX711 scale;
@@ -15,11 +14,18 @@ HX711 scale;
 // Calibrated to my specific scale, YMMV
 float calibration_factor = 416;
 
+int desired_weight_in_grams;
+
 unsigned long state_start_millis = 0;
 
 bool has_most_recent_pour = false;
 unsigned long last_pour_seconds;
 float last_pour_weight;
+
+Encoder encoder(2, 3);
+Bounce brew_button;
+Bounce flush_button;
+Bounce encoder_button;
 
 enum State {
   Waiting,
@@ -33,21 +39,29 @@ enum State {
 
 State current_state;
 
-RotaryEncoderWithButton encoder{2, 3, 10};
+/*RotaryEncoderWithButton encoder{2, 3, 10};*/
 
 Temps<5> temps{A0, A1};
 
 State (*tick_func)();
 
 State waiting_tick() {
-  desired_weight_in_grams = encoder.value();
+  brew_button.update();
+  flush_button.update();
+  encoder_button.update();
+
+  if (encoder_button.fell()) {
+    Serial.println("Button!");
+  }
+
+  desired_weight_in_grams = encoder.read() / 4;
 
   State next_state;
-  if (digitalRead(BREW_BUTTON) == HIGH) {
+  if (brew_button.fell()) {
     scale.tare();
 
     next_state = State::Preinfusing;
-  } else if (digitalRead(FLUSH_BUTTON) == HIGH) {
+  } else if (flush_button.fell()) {
     next_state = State::Flushing;
   } else {
     next_state = State::Waiting;
@@ -77,6 +91,9 @@ State waiting_tick() {
     display.print(last_pour_weight);
     display.println(F("g"));
   } else {
+    display.print(F("Target weight: "));
+    display.print(desired_weight_in_grams);
+    display.println(F("g"));
     display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
   }
 
@@ -192,7 +209,7 @@ State flushing_tick() {
 
   display.setTextSize(2);
 
-  display.println(F("Flushing..."));
+  display.println(F("Flushing"));
 
   display.setTextSize(1);
 
@@ -265,12 +282,19 @@ void setup() {
   scale.set_scale(calibration_factor);
   scale.tare();
 
-  pinMode(BREW_BUTTON, INPUT);
-  pinMode(FLUSH_BUTTON, INPUT);
+  brew_button.attach(4, INPUT_PULLUP);
+  brew_button.interval(25);
+
+  flush_button.attach(7, INPUT_PULLUP);
+  flush_button.interval(25);
+
   pinMode(LED, OUTPUT);
   pinMode(PUMP, OUTPUT);
 
-  encoder.set_value(38);
+  encoder_button.attach(10, INPUT_PULLUP);
+  encoder_button.interval(25);
+
+  encoder.write(INITIAL_DESIRED_WEIGHT_GRAMS * 4);
 
   set_new_state(State::Waiting);
 
@@ -285,13 +309,13 @@ void setup() {
   display.display();
 }
 
+/*
 void update_encoder_clk() { encoder.update_clk_on_change(); }
 
 void update_encoder_dt() { encoder.update_dt_on_change(); }
+*/
 
 void loop() {
-  /*encoder.update(now);*/
-
   temps.update_samples_blocking();
 
   display.clearDisplay();

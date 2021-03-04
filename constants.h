@@ -2,10 +2,8 @@
 
 #define HX711_CLK 8
 #define HX711_DOUT 9
-#define BREW_BUTTON 4
 #define LED 5
 #define PUMP 6
-#define FLUSH_BUTTON 7
 
 #define SAMPLE_COUNT 5
 
@@ -20,6 +18,8 @@
 #define FLUSH_TIME_MILLIS 1000
 #define PREINFUSE_PUMP_TIME_MILLIS 3000
 #define PREINFUSE_TIME_MILLIS 7000
+
+#define INITIAL_DESIRED_WEIGHT_GRAMS 38
 
 // Cute coffee cup bitmap to display, 128x32 pixels
 const unsigned char coffee_bitmap[] PROGMEM = {
