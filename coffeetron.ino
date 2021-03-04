@@ -37,9 +37,6 @@ HX711 scale;
 // Calibrated to my specific scale, YMMV
 float calibration_factor = 416;
 
-int running = FALSE;
-int flushing = FALSE;
-
 unsigned long state_start_millis = 0;
 
 int has_most_recent_pour = FALSE;
@@ -54,7 +51,7 @@ enum State {
   Brewing,
 };
 
-State state = State::Waiting;
+State current_state = State::Waiting;
 
 // Cute coffee cup bitmap to display, 128x32 pixels
 const unsigned char coffee_bitmap[] PROGMEM = {
@@ -92,12 +89,10 @@ const unsigned char coffee_bitmap[] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-class BrewData {
+class Temps {
  public:
-  unsigned long now;
   float pump_temp;
   float grouphead_temp;
-  float weight;
 };
 
 template <int S>
@@ -107,9 +102,7 @@ class WindowedReading {
 
  public:
   WindowedReading() {
-    for (int i = 0; i < S; i++) {
-      values[i] = 0.0;
-    }
+    clear();
   }
 
   void add_value(float value) {
@@ -124,6 +117,12 @@ class WindowedReading {
     }
 
     return sum / S;
+  }
+
+  void clear() {
+    for (int i = 0; i < S; i++) {
+      values[i] = 0.0;
+    }
   }
 };
 
@@ -255,38 +254,12 @@ public:
 
 WindowedReading<SAMPLE_COUNT> pump_temps;
 WindowedReading<SAMPLE_COUNT> grouphead_temps;
-WindowedReading<SAMPLE_COUNT> weights;
 
 RotaryEncoderWithButton encoder{2, 3, 10};
 
 unsigned int windows_read = 0;
 
-void setup() {
-  Serial.begin(9600);
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println("failed to initialize OLED display");
-    for(;;); // Don't proceed, loop forever
-  }
-
-  scale.begin(HX711_DOUT, HX711_CLK);
-  scale.set_scale(calibration_factor);
-  scale.tare();
-
-  pinMode(BREW_BUTTON, INPUT);
-  pinMode(FLUSH_BUTTON, INPUT);
-  pinMode(LED, OUTPUT);
-  pinMode(PUMP, OUTPUT);
-
-  encoder.set_value(38);
-
-  /*
-  attachInterrupt(digitalPinToInterrupt(encoder.clk_pin()), update_encoder_clk, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(encoder.dt_pin()), update_encoder_dt, CHANGE);
-  */
-
-  display.clearDisplay();
-  display.display();
-}
+State (*tick_func)(const Temps&);
 
 float temp_in_fahrenheit(int pin) {
   float pin_reading = analogRead(pin) * (VCC / ANALOG_MAX);
@@ -296,61 +269,6 @@ float temp_in_fahrenheit(int pin) {
   float temp_in_kelvin = (1 / ((ln / THERMISTOR_B_CONSTANT) + (1 / NOMINAL_TEMPERATURE)));
 
   return ((temp_in_kelvin - CELCIUS_OFFSET) * 1.8) + 32;
-}
-
-State waiting_update(const BrewData& data) {
-  desired_weight_in_grams = encoder.value();
-
-  if (digitalRead(BREW_BUTTON) == HIGH) {
-    scale.tare();
-
-    return State::Preinfusing;
-  }
-
-  if (digitalRead(FLUSH_BUTTON) == HIGH) {
-    return State::Flushing;
-  }
-
-  return State::Waiting;
-}
-
-State preinfusing_update(const BrewData& data) {
-  if (data.now - state_start_millis > PREINFUSE_PUMP_TIME_MILLIS) {
-    return State::WaitingAfterPreinfusing;
-  }
-
-  return State::Preinfusing;
-}
-
-State waiting_after_preinfusing_update(const BrewData& data) {
-  if (data.now - state_start_millis > PREINFUSE_TIME_MILLIS) {
-    return State::Brewing;
-  }
-
-  return State::WaitingAfterPreinfusing;
-}
-
-State brewing_update(const BrewData& data) {
-  if (data.weight > desired_weight_in_grams) {
-    scale.tare();
-
-    last_pour_seconds = (data.now - state_start_millis) / 1000;
-    last_pour_weight = data.weight;
-
-    has_most_recent_pour = TRUE;
-
-    return State::Waiting;
-  }
-
-  return State::Brewing;
-}
-
-State flushing_update(const BrewData& data) {
-  if (data.now - state_start_millis > FLUSH_TIME_MILLIS) {
-    return State::Waiting;
-  }
-
-  return State::Flushing;
 }
 
 void pump_on() {
@@ -363,28 +281,26 @@ void pump_off() {
   digitalWrite(PUMP, LOW);
 }
 
-void waiting_set_outputs() {
-  pump_off();
-}
-
-void preinfusing_set_outputs() {
-  pump_on();
-}
-
-void waiting_after_preinfusing_set_outputs() {
-  digitalWrite(LED, HIGH);
-  digitalWrite(PUMP, LOW);
-}
-
-void brewing_set_outputs() {
-  pump_on();
-}
-
 void flushing_set_outputs() {
   pump_on();
 }
 
-void waiting_display(const BrewData& data) {
+State waiting_tick(const Temps& data) {
+  desired_weight_in_grams = encoder.value();
+
+  State next_state;
+  if (digitalRead(BREW_BUTTON) == HIGH) {
+    scale.tare();
+
+    next_state = State::Preinfusing;
+  } else if (digitalRead(FLUSH_BUTTON) == HIGH) {
+    next_state = State::Flushing;
+  } else {
+    next_state = State::Waiting;
+  }
+
+  pump_off();
+
   display.setTextSize(2);
 
   display.println(F("Coffeetron"));
@@ -409,9 +325,11 @@ void waiting_display(const BrewData& data) {
   } else {
     display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
   }
+
+  return next_state;
 }
 
-void preinfusing_display(const BrewData& data) {
+void preinfusing_display(const Temps& data) {
   display.setTextSize(2);
 
   display.println(F("Brewing..."));
@@ -428,10 +346,62 @@ void preinfusing_display(const BrewData& data) {
   display.println(F("Preinfusing..."));
 }
 
-// WaitingAfterPreinfusing uses the same display as Preinfusing
-// TODO: show time remaining for preinfuse
+State preinfusing_tick(const Temps& data) {
+  State next_state;
+  if (millis() - state_start_millis > PREINFUSE_PUMP_TIME_MILLIS) {
+    next_state = State::WaitingAfterPreinfusing;
+  } else {
+    next_state = State::Preinfusing;
+  }
 
-void brewing_display(const BrewData& data) {
+  pump_on();
+
+  preinfusing_display(data);
+
+  return next_state;
+}
+
+State waiting_after_preinfusing_tick(const Temps& data) {
+  State next_state;
+  if (millis() - state_start_millis > PREINFUSE_TIME_MILLIS) {
+    next_state = State::Brewing;
+  } else {
+    next_state = State::WaitingAfterPreinfusing;
+  }
+
+  digitalWrite(LED, HIGH);
+  digitalWrite(PUMP, LOW);
+
+  // TODO: show time remaining for preinfuse
+  preinfusing_display(data);
+
+  return next_state;
+}
+
+State brewing_tick(const Temps& data) {
+  const auto now = millis();
+
+  // Note that this is very slow
+  const auto weight = scale.get_units();
+
+  State next_state;
+
+  if (weight > desired_weight_in_grams) {
+    scale.tare();
+
+    last_pour_seconds = (now - state_start_millis) / 1000;
+    last_pour_weight = weight;
+
+    has_most_recent_pour = TRUE;
+
+    next_state = State::Waiting;
+  } else {
+    next_state = State::Brewing;
+  }
+
+  pump_on();
+
+  // Display
   display.setTextSize(2);
 
   display.println(F("Brewing..."));
@@ -446,15 +416,26 @@ void brewing_display(const BrewData& data) {
   display.println(F("F"));
 
   display.print(F("Weight: "));
-  display.print(data.weight);
+  display.print(weight);
   display.println(F("g"));
 
   display.print(F("Elapsed: "));
-  display.print((data.now - state_start_millis) / 1000);
+  display.print((now - state_start_millis) / 1000);
   display.println(F("s"));
+
+  return next_state;
 }
 
-void flushing_display(const BrewData& data) {
+void flushing_tick(const Temps& data) {
+  State next_state;
+  if (millis() - state_start_millis > FLUSH_TIME_MILLIS) {
+    next_state = State::Waiting;
+  } else {
+    next_state = State::Flushing;
+  }
+
+  pump_on();
+
   display.setTextSize(2);
 
   display.println(F("Flushing..."));
@@ -469,6 +450,62 @@ void flushing_display(const BrewData& data) {
   display.println(F("F"));
 
   display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+
+  return next_state;
+}
+
+void set_function_for_state(const State& state) {
+  switch (state) {
+    case State::Waiting:
+      tick_func = &waiting_tick;
+      break;
+
+    case State::Flushing:
+      tick_func = &flushing_tick;
+      break;
+
+    case State::Preinfusing:
+      tick_func = &preinfusing_tick;
+
+      break;
+
+    case State::WaitingAfterPreinfusing:
+      tick_func = &waiting_after_preinfusing_tick;
+      break;
+
+    case State::Brewing:
+      tick_func = &brewing_tick;
+      break;
+  }
+}
+
+void setup() {
+  Serial.begin(9600);
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println("failed to initialize OLED display");
+    for(;;); // Don't proceed, loop forever
+  }
+
+  scale.begin(HX711_DOUT, HX711_CLK);
+  scale.set_scale(calibration_factor);
+  scale.tare();
+
+  pinMode(BREW_BUTTON, INPUT);
+  pinMode(FLUSH_BUTTON, INPUT);
+  pinMode(LED, OUTPUT);
+  pinMode(PUMP, OUTPUT);
+
+  encoder.set_value(38);
+
+  set_function_for_state(current_state);
+
+  /*
+  attachInterrupt(digitalPinToInterrupt(encoder.clk_pin()), update_encoder_clk, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(encoder.dt_pin()), update_encoder_dt, CHANGE);
+  */
+
+  display.clearDisplay();
+  display.display();
 }
 
 void update_encoder_clk() {
@@ -480,15 +517,13 @@ void update_encoder_dt() {
 }
 
 void loop() {
+  /*encoder.update(now);*/
   pump_temps.add_value(temp_in_fahrenheit(A0));
   grouphead_temps.add_value(temp_in_fahrenheit(A1));
-  weights.add_value(scale.get_units());
 
   windows_read += 1;
 
-  auto now = millis();
-
-  /*encoder.update(now);*/
+  const auto now = millis();
 
   if (windows_read % SAMPLE_COUNT != 0) {
     delayMicroseconds(100);
@@ -496,49 +531,22 @@ void loop() {
   }
 
   // Gather measurements
-  const BrewData data = BrewData {
-    now,
+  const Temps temps = Temps {
     pump_temps.average_reading(),
     grouphead_temps.average_reading(),
-    weights.average_reading(),
   };
 
   display.clearDisplay();
   display.setCursor(0, 0);
   display.setTextColor(SSD1306_WHITE);
 
-  State prev_state = state;
+  State prev_state = current_state;
 
-  switch (state) {
-    case State::Waiting:
-      state = waiting_update(data);
-      waiting_set_outputs();
-      waiting_display(data);
-      break;
-    case State::Preinfusing:
-      state = preinfusing_update(data);
-      preinfusing_set_outputs();
-      preinfusing_display(data);
-      break;
-    case State::WaitingAfterPreinfusing:
-      state = waiting_after_preinfusing_update(data);
-      waiting_after_preinfusing_set_outputs();
-      preinfusing_display(data);
-      break;
-    case State::Brewing:
-      state = brewing_update(data);
-      brewing_set_outputs();
-      brewing_display(data);
-      break;
-    case State::Flushing:
-      state = flushing_update(data);
-      flushing_set_outputs();
-      flushing_display(data);
-      break;
-  }
+  current_state = tick_func(temps);
 
-  if (prev_state != state) {
-    state_start_millis = now;
+  if (prev_state != current_state) {
+    state_start_millis = millis();
+    set_function_for_state(current_state);
   }
 
   display.display();
