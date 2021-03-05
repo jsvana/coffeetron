@@ -30,6 +30,7 @@ Encoder encoder(2, 3);
 Bounce brew_button;
 Bounce flush_button;
 Bounce encoder_button;
+Bounce stats_button;
 
 enum State {
   Waiting,
@@ -42,7 +43,10 @@ enum State {
   Preinfusing,
   WaitingAfterPreinfusing,
   Brewing,
+
   Flushing,
+
+  BrewStats,
 
   Error,
 };
@@ -57,6 +61,7 @@ State waiting_tick() {
   brew_button.update();
   flush_button.update();
   encoder_button.update();
+  stats_button.update();
 
   State next_state;
   if (brew_button.fell()) {
@@ -72,6 +77,8 @@ State waiting_tick() {
   } else if (encoder_button.fell()) {
     encoder.write(desired_weight_in_grams * 4);
     next_state = State::ConfigureWeight;
+  } else if (stats_button.fell()) {
+    next_state = State::BrewStats;
   } else {
     next_state = State::Waiting;
   }
@@ -91,17 +98,7 @@ State waiting_tick() {
   display.print(temps.average_grouphead_temperature());
   display.println(F("F"));
 
-  if (has_most_recent_pour) {
-    display.println(F("Most recent pour:"));
-    display.print(F(" Total time: "));
-    display.print(last_pour_seconds);
-    display.println(F("s"));
-    display.print(F(" Total weight: "));
-    display.print(last_pour_weight);
-    display.println(F("g"));
-  } else {
-    display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
-  }
+  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
 
   return next_state;
 }
@@ -395,6 +392,39 @@ State flushing_tick() {
   return next_state;
 }
 
+State brew_stats_tick() {
+  stats_button.update();
+
+  State next_state;
+  if (stats_button.fell()) {
+    next_state = State::Waiting;
+  } else {
+    next_state = State::BrewStats;
+  }
+
+  pump_off();
+
+  display.setTextSize(1);
+
+  display.println(F("Brew stats"));
+
+  if (has_most_recent_pour) {
+    display.println(F("Most recent pour:"));
+    display.print(F(" Total time: "));
+    display.print(last_pour_seconds);
+    display.println(F("s"));
+    display.print(F(" Total weight: "));
+    display.print(last_pour_weight);
+    display.println(F("g"));
+  } else {
+    display.println(F("No pour found"));
+  }
+
+  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+
+  return next_state;
+}
+
 State error_tick() {
   display.setTextSize(2);
 
@@ -449,6 +479,10 @@ void set_new_state(const State &state) {
     tick_func = &brewing_tick;
     break;
 
+  case State::BrewStats:
+    tick_func = &brew_stats_tick;
+    break;
+
   case State::Error:
   default:
     tick_func = &error_tick;
@@ -474,11 +508,14 @@ void setup() {
   flush_button.attach(7, INPUT_PULLUP);
   flush_button.interval(25);
 
-  pinMode(LED, OUTPUT);
-  pinMode(PUMP, OUTPUT);
-
   encoder_button.attach(10, INPUT_PULLUP);
   encoder_button.interval(25);
+
+  stats_button.attach(11, INPUT_PULLUP);
+  stats_button.interval(25);
+
+  pinMode(LED, OUTPUT);
+  pinMode(PUMP, OUTPUT);
 
   desired_weight_in_grams = INITIAL_DESIRED_WEIGHT_GRAMS;
   desired_preinfuse_pump_time_in_milliseconds =
