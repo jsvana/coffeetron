@@ -29,8 +29,6 @@
 ## Pump controller
 - [x] Pump temperature
 - [x] Grouphead temperature
-- [ ] Steam wand temperature
-- [x] Fuse
 - [x] Pump relay
-- [ ] Heater PID controller (~11A)
-- [ ] PCB designed
+- [x] Heater PID controller (~11A)
+- [x] PCB designed
