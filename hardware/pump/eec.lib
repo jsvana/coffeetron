@@ -1,12 +1,12 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
-# G3MC202PDC24
+# G3MC202PDC5
 #
-DEF G3MC202PDC24 K 0 40 Y Y 1 L N
+DEF G3MC202PDC5 K 0 40 Y Y 1 L N
 F0 "K" 0 300 50 H V L CNN
-F1 "G3MC202PDC24" 0 400 50 H V L CNN
-F2 "Omron-G3MC202PDC24-0-0-*" 0 500 50 H I L CNN
+F1 "G3MC202PDC5" 0 400 50 H V L CNN
+F2 "Omron-G3MC202PDC5-0-0-*" 0 500 50 H I L CNN
 F3 "http://omronfs.omron.com/en_US/ecb/products/pdf/en-g3mc.pdf" 0 600 50 H I L CNN
 F4 "+80°C" 0 700 50 H I L CNN "ambient temperature range high"
 F5 "-30°C" 0 800 50 H I L CNN "ambient temperature range low"
@@ -14,14 +14,14 @@ F6 "Relay" 0 900 50 H I L CNN "category"
 F7 "Electromechanical" 0 1000 50 H I L CNN "device class L1"
 F8 "Relays" 0 1100 50 H I L CNN "device class L2"
 F9 "Solid State Relays" 0 1200 50 H I L CNN "device class L3"
-F10 "RELAY SSR SPST-NO SIP 24VDC" 0 1300 50 H I L CNN "digikey description"
+F10 "RELAY SSR SPST-NO SIP 5VDC" 0 1300 50 H I L CNN "digikey description"
 F11 "Z2987-ND" 0 1400 50 H I L CNN "digikey part number"
 F12 "20.5mm" 0 1500 50 H I L CNN "height"
 F13 "yes" 0 1600 50 H I L CNN "lead free"
 F14 "eac7530ef8727681" 0 1700 50 H I L CNN "library id"
 F15 "Omron" 0 1800 50 H I L CNN "manufacturer"
-F16 "Solid State Relays - PCB Mount 24VDC/100-240VAC 2A Zero cross snubber" 0 1900 50 H I L CNN "mouser description"
-F17 "653-G3MC-202P-DC24" 0 2000 50 H I L CNN "mouser part number"
+F16 "Solid State Relays - PCB Mount 5VDC/100-240VAC 2A Zero cross snubber" 0 1900 50 H I L CNN "mouser description"
+F17 "653-G3MC-202P-DC5" 0 2000 50 H I L CNN "mouser part number"
 F18 "1" 0 2100 50 H I L CNN "number of contacts"
 F19 "2A" 0 2200 50 H I L CNN "output current"
 F20 "1.6V" 0 2300 50 H I L CNN "output voltage"

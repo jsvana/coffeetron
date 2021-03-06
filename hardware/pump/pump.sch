@@ -1,0 +1,387 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Device:R R1
+U 1 1 603D9A99
+P 3750 3500
+F 0 "R1" V 3543 3500 50  0000 C CNN
+F 1 "10000" V 3634 3500 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 3680 3500 50  0001 C CNN
+F 3 "~" H 3750 3500 50  0001 C CNN
+	1    3750 3500
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R R2
+U 1 1 603DA608
+P 3750 4200
+F 0 "R2" V 3543 4200 50  0000 C CNN
+F 1 "10000" V 3634 4200 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 3680 4200 50  0001 C CNN
+F 3 "~" H 3750 4200 50  0001 C CNN
+	1    3750 4200
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector:Conn_01x02_Female J2
+U 1 1 603DD8F9
+P 4050 3300
+F 0 "J2" V 3988 3112 50  0000 R CNN
+F 1 "GroupheadThermistor" V 3897 3112 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 4050 3300 50  0001 C CNN
+F 3 "~" H 4050 3300 50  0001 C CNN
+	1    4050 3300
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Connector:Conn_01x02_Female J3
+U 1 1 603DF456
+P 4050 4000
+F 0 "J3" V 3988 3812 50  0000 R CNN
+F 1 "PumpThermistor" V 3897 3812 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 4050 4000 50  0001 C CNN
+F 3 "~" H 4050 4000 50  0001 C CNN
+	1    4050 4000
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Connector:Screw_Terminal_01x02 J4
+U 1 1 603E01E4
+P 5050 5300
+F 0 "J4" H 5130 5292 50  0000 L CNN
+F 1 "PumpConnect" H 5130 5201 50  0000 L CNN
+F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal" H 5050 5300 50  0001 C CNN
+F 3 "~" H 5050 5300 50  0001 C CNN
+	1    5050 5300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R3
+U 1 1 603C2CFA
+P 3200 5100
+F 0 "R3" V 2993 5100 50  0000 C CNN
+F 1 "220" V 3084 5100 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 3130 5100 50  0001 C CNN
+F 3 "~" H 3200 5100 50  0001 C CNN
+	1    3200 5100
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	3500 4950 3500 5150
+$Comp
+L power:GND #PWR0101
+U 1 1 6041A9D6
+P 4150 3500
+F 0 "#PWR0101" H 4150 3250 50  0001 C CNN
+F 1 "GND" H 4155 3327 50  0000 C CNN
+F 2 "" H 4150 3500 50  0001 C CNN
+F 3 "" H 4150 3500 50  0001 C CNN
+	1    4150 3500
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0102
+U 1 1 6041B8C9
+P 4150 4200
+F 0 "#PWR0102" H 4150 3950 50  0001 C CNN
+F 1 "GND" H 4155 4027 50  0000 C CNN
+F 2 "" H 4150 4200 50  0001 C CNN
+F 3 "" H 4150 4200 50  0001 C CNN
+	1    4150 4200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:DB9_Male J1
+U 1 1 6040A814
+P 1950 3600
+F 0 "J1" H 1868 2908 50  0000 C CNN
+F 1 "DB9_Male" H 1868 2999 50  0000 C CNN
+F 2 "Connector_Dsub:DSUB-9_Male_Horizontal_P2.77x2.84mm_EdgePinOffset4.94mm_Housed_MountingHolesOffset7.48mm" H 1950 3600 50  0001 C CNN
+F 3 " ~" H 1950 3600 50  0001 C CNN
+	1    1950 3600
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR0103
+U 1 1 60425392
+P 2700 3200
+F 0 "#PWR0103" H 2700 2950 50  0001 C CNN
+F 1 "GND" H 2705 3027 50  0000 C CNN
+F 2 "" H 2700 3200 50  0001 C CNN
+F 3 "" H 2700 3200 50  0001 C CNN
+	1    2700 3200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR0104
+U 1 1 6042602E
+P 3200 5650
+F 0 "#PWR0104" H 3200 5400 50  0001 C CNN
+F 1 "GND" H 3205 5477 50  0000 C CNN
+F 2 "" H 3200 5650 50  0001 C CNN
+F 3 "" H 3200 5650 50  0001 C CNN
+	1    3200 5650
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:LED D1
+U 1 1 603C21CF
+P 3200 5400
+F 0 "D1" V 3239 5282 50  0000 R CNN
+F 1 "LED" V 3148 5282 50  0000 R CNN
+F 2 "LED_THT:LED_D3.0mm" H 3200 5400 50  0001 C CNN
+F 3 "~" H 3200 5400 50  0001 C CNN
+	1    3200 5400
+	0    -1   -1   0   
+$EndComp
+NoConn ~ 2250 3500
+NoConn ~ 2250 3700
+NoConn ~ 2250 3900
+$Comp
+L Mechanical:MountingHole_Pad H2
+U 1 1 604388E9
+P 3700 1950
+F 0 "H2" H 3800 1999 50  0000 L CNN
+F 1 "MountingHole_Pad" H 3800 1908 50  0000 L CNN
+F 2 "MountingHole:MountingHole_4.3mm_M4_Pad" H 3700 1950 50  0001 C CNN
+F 3 "~" H 3700 1950 50  0001 C CNN
+	1    3700 1950
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole_Pad H1
+U 1 1 604393E9
+P 3700 2550
+F 0 "H1" H 3800 2599 50  0000 L CNN
+F 1 "MountingHole_Pad" H 3800 2508 50  0000 L CNN
+F 2 "MountingHole:MountingHole_4.3mm_M4_Pad" H 3700 2550 50  0001 C CNN
+F 3 "~" H 3700 2550 50  0001 C CNN
+	1    3700 2550
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0105
+U 1 1 60439EEC
+P 3700 2050
+F 0 "#PWR0105" H 3700 1800 50  0001 C CNN
+F 1 "GND" H 3705 1877 50  0000 C CNN
+F 2 "" H 3700 2050 50  0001 C CNN
+F 3 "" H 3700 2050 50  0001 C CNN
+	1    3700 2050
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0106
+U 1 1 6043A240
+P 3700 2650
+F 0 "#PWR0106" H 3700 2400 50  0001 C CNN
+F 1 "GND" H 3705 2477 50  0000 C CNN
+F 2 "" H 3700 2650 50  0001 C CNN
+F 3 "" H 3700 2650 50  0001 C CNN
+	1    3700 2650
+	1    0    0    -1  
+$EndComp
+$Comp
+L omron:G3MC202PDC5 K1
+U 1 1 60431DDA
+P 3400 5150
+F 0 "K1" H 4000 5515 50  0000 C CNN
+F 1 "G3MC202PDC5" H 4000 5424 50  0000 C CNN
+F 2 "Relay_THT:Omron-G3MC202PDC5-0-0-0" H 3400 5650 50  0001 L CNN
+F 3 "http://omronfs.omron.com/en_US/ecb/products/pdf/en-g3mc.pdf" H 3400 5750 50  0001 L CNN
+F 4 "+80°C" H 3400 5850 50  0001 L CNN "ambient temperature range high"
+F 5 "-30°C" H 3400 5950 50  0001 L CNN "ambient temperature range low"
+F 6 "Relay" H 3400 6050 50  0001 L CNN "category"
+F 7 "Electromechanical" H 3400 6150 50  0001 L CNN "device class L1"
+F 8 "Relays" H 3400 6250 50  0001 L CNN "device class L2"
+F 9 "Solid State Relays" H 3400 6350 50  0001 L CNN "device class L3"
+F 10 "RELAY SSR SPST-NO SIP 5VDC" H 3400 6450 50  0001 L CNN "digikey description"
+F 11 "Z2987-ND" H 3400 6550 50  0001 L CNN "digikey part number"
+F 12 "20.5mm" H 3400 6650 50  0001 L CNN "height"
+F 13 "yes" H 3400 6750 50  0001 L CNN "lead free"
+F 14 "eac7530ef8727681" H 3400 6850 50  0001 L CNN "library id"
+F 15 "Omron" H 3400 6950 50  0001 L CNN "manufacturer"
+F 16 "Solid State Relays - PCB Mount 5VDC/100-240VAC 2A Zero cross snubber" H 3400 7050 50  0001 L CNN "mouser description"
+F 17 "653-G3MC-202P-DC5" H 3400 7150 50  0001 L CNN "mouser part number"
+F 18 "1" H 3400 7250 50  0001 L CNN "number of contacts"
+F 19 "2A" H 3400 7350 50  0001 L CNN "output current"
+F 20 "1.6V" H 3400 7450 50  0001 L CNN "output voltage"
+F 21 "PTH_RELAY" H 3400 7550 50  0001 L CNN "package"
+F 22 "yes" H 3400 7650 50  0001 L CNN "rohs"
+F 23 "0.8mm" H 3400 7750 50  0001 L CNN "standoff height"
+F 24 "+80°C" H 3400 7850 50  0001 L CNN "temperature range high"
+F 25 "-30°C" H 3400 7950 50  0001 L CNN "temperature range low"
+F 26 "SPST-NO" H 3400 8050 50  0001 L CNN "throw configuration"
+F 27 "100-240V" H 3400 8150 50  0001 L CNN "voltage rating AC"
+	1    3400 5150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3500 5550 3500 5650
+Wire Wire Line
+	3500 5650 3200 5650
+Wire Wire Line
+	3200 5650 3200 5550
+Connection ~ 3200 5650
+Wire Wire Line
+	3200 4950 3500 4950
+Wire Wire Line
+	3900 3500 4050 3500
+Wire Wire Line
+	3900 4200 4050 4200
+Text GLabel 3950 4200 3    50   Input ~ 0
+GH_TEMP
+Text GLabel 3950 3500 3    50   Input ~ 0
+PUMP_TEMP
+$Comp
+L power:+5V #PWR03
+U 1 1 60455B71
+P 3600 3500
+F 0 "#PWR03" H 3600 3350 50  0001 C CNN
+F 1 "+5V" V 3615 3628 50  0000 L CNN
+F 2 "" H 3600 3500 50  0001 C CNN
+F 3 "" H 3600 3500 50  0001 C CNN
+	1    3600 3500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+5V #PWR04
+U 1 1 604564B0
+P 3600 4200
+F 0 "#PWR04" H 3600 4050 50  0001 C CNN
+F 1 "+5V" V 3615 4328 50  0000 L CNN
+F 2 "" H 3600 4200 50  0001 C CNN
+F 3 "" H 3600 4200 50  0001 C CNN
+	1    3600 4200
+	0    -1   -1   0   
+$EndComp
+Text GLabel 3350 4950 1    50   Input ~ 0
+PUMP
+$Comp
+L power:PWR_FLAG #FLG01
+U 1 1 60459CA1
+P 2700 3200
+F 0 "#FLG01" H 2700 3275 50  0001 C CNN
+F 1 "PWR_FLAG" H 2700 3373 50  0000 C CNN
+F 2 "" H 2700 3200 50  0001 C CNN
+F 3 "~" H 2700 3200 50  0001 C CNN
+	1    2700 3200
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR01
+U 1 1 6045B683
+P 3100 3400
+F 0 "#PWR01" H 3100 3250 50  0001 C CNN
+F 1 "+5V" V 3115 3528 50  0000 L CNN
+F 2 "" H 3100 3400 50  0001 C CNN
+F 3 "" H 3100 3400 50  0001 C CNN
+	1    3100 3400
+	0    1    1    0   
+$EndComp
+$Comp
+L power:PWR_FLAG #FLG02
+U 1 1 6045C5FA
+P 3100 3400
+F 0 "#FLG02" H 3100 3475 50  0001 C CNN
+F 1 "PWR_FLAG" H 3100 3573 50  0000 C CNN
+F 2 "" H 3100 3400 50  0001 C CNN
+F 3 "~" H 3100 3400 50  0001 C CNN
+	1    3100 3400
+	1    0    0    -1  
+$EndComp
+Text GLabel 2250 3600 2    50   Input ~ 0
+PUMP_TEMP
+Text GLabel 2250 3800 2    50   Input ~ 0
+GH_TEMP
+Wire Wire Line
+	2250 3200 2700 3200
+Connection ~ 2700 3200
+Text GLabel 2250 4000 2    50   Input ~ 0
+PUMP
+$Comp
+L Connector:Screw_Terminal_01x02 J5
+U 1 1 60460D76
+P 3800 6700
+F 0 "J5" H 3880 6692 50  0000 L CNN
+F 1 "HeaterRelayConnect" H 3880 6601 50  0000 L CNN
+F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal" H 3800 6700 50  0001 C CNN
+F 3 "~" H 3800 6700 50  0001 C CNN
+	1    3800 6700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R4
+U 1 1 60461CD5
+P 3200 6550
+F 0 "R4" V 2993 6550 50  0000 C CNN
+F 1 "220" V 3084 6550 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 3130 6550 50  0001 C CNN
+F 3 "~" H 3200 6550 50  0001 C CNN
+	1    3200 6550
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:LED D2
+U 1 1 604620FC
+P 3200 6850
+F 0 "D2" V 3239 6732 50  0000 R CNN
+F 1 "LED" V 3148 6732 50  0000 R CNN
+F 2 "LED_THT:LED_D3.0mm" H 3200 6850 50  0001 C CNN
+F 3 "~" H 3200 6850 50  0001 C CNN
+	1    3200 6850
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR02
+U 1 1 60462826
+P 3200 7050
+F 0 "#PWR02" H 3200 6800 50  0001 C CNN
+F 1 "GND" H 3205 6877 50  0000 C CNN
+F 2 "" H 3200 7050 50  0001 C CNN
+F 3 "" H 3200 7050 50  0001 C CNN
+	1    3200 7050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3200 6400 3600 6400
+Wire Wire Line
+	3600 6400 3600 6700
+Wire Wire Line
+	3600 6800 3600 7050
+Wire Wire Line
+	3600 7050 3200 7050
+Wire Wire Line
+	3200 7050 3200 7000
+Connection ~ 3200 7050
+Text GLabel 3400 6400 1    50   Input ~ 0
+HEATER_RELAY
+Text GLabel 2250 3300 2    50   Input ~ 0
+HEATER_RELAY
+Connection ~ 3100 3400
+Wire Wire Line
+	2250 3400 3100 3400
+Wire Wire Line
+	4500 5650 4500 5300
+Wire Wire Line
+	4500 5300 4850 5300
+Wire Wire Line
+	4500 5050 4650 5050
+Wire Wire Line
+	4650 5050 4650 5400
+Wire Wire Line
+	4650 5400 4850 5400
+$EndSCHEMATC
