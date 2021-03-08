@@ -2,6 +2,7 @@
 #include <Bounce2.h>
 #include <Encoder.h>
 #include <HX711.h>
+#include <PID_v2.h>
 #include <SPI.h>
 #include <Wire.h>
 
@@ -33,8 +34,11 @@ Bounce flush_button;
 Bounce encoder_button;
 Bounce stats_button;
 
-// TODO: lol
-int heater_relay_state = LOW;
+double Kp = 4.5;
+double Ki = 0.175;
+double Kd = 0.4;
+
+PID_v2 heater_pid(Kp, Ki, Kd, PID::Direct);
 
 enum State {
   Waiting,
@@ -86,15 +90,7 @@ State waiting_tick() {
       next_state = State::Brewing;
     }
   } else if (flush_button.fell()) {
-    // TODO: lol
-    /*next_state = State::Flushing;*/
-    if (heater_relay_state == HIGH) {
-      heater_relay_state = LOW;
-    } else {
-      heater_relay_state = HIGH;
-    }
-
-    next_state = State::Waiting;
+    next_state = State::Flushing;
   } else if (encoder_button.fell()) {
     encoder.write(desired_pump_temperature * 4);
     next_state = State::ConfigurePumpTemp;
@@ -104,18 +100,11 @@ State waiting_tick() {
     next_state = State::Waiting;
   }
 
-  digitalWrite(HEATER_RELAY, heater_relay_state);
-
   pump_off();
 
   display.setTextSize(2);
 
-  if (heater_relay_state == HIGH) {
-    display.println(F("HEAT ON"));
-  } else {
-    display.println(F("HEAT OFF"));
-  }
-  /*display.println(F("Coffeetron"));*/
+  display.println(F("Coffeetron"));
 
   display.setTextSize(1);
 
@@ -124,9 +113,7 @@ State waiting_tick() {
   if (pump_reading.is_error()) {
     display.println("ERR");
   } else {
-    const auto reading = pump_reading.reading();
-    set_temp_led(reading);
-    display.print(reading);
+    display.print(pump_reading.reading());
     display.println(F("F"));
   }
   display.print(F("GH temp: "));
@@ -145,6 +132,8 @@ State waiting_tick() {
 
 State configure_pump_temp_tick() {
   desired_pump_temperature = encoder.read() / 4;
+
+  heater_pid.Setpoint(desired_pump_temperature);
 
   if (desired_pump_temperature < 1) {
     desired_pump_temperature = 1;
@@ -342,9 +331,7 @@ State preinfusing_tick() {
   if (pump_reading.is_error()) {
     display.println("ERR");
   } else {
-    const auto reading = pump_reading.reading();
-    set_temp_led(reading);
-    display.print(reading);
+    display.print(pump_reading.reading());
     display.println(F("F"));
   }
   display.print(F("GH temp: "));
@@ -390,9 +377,7 @@ State waiting_after_preinfusing_tick() {
   if (pump_reading.is_error()) {
     display.println("ERR");
   } else {
-    const auto reading = pump_reading.reading();
-    set_temp_led(reading);
-    display.print(reading);
+    display.print(pump_reading.reading());
     display.println(F("F"));
   }
   display.print(F("GH temp: "));
@@ -430,7 +415,6 @@ State brewing_tick() {
 
   pump_on();
 
-  // Display
   display.setTextSize(2);
 
   display.println(F("Brewing..."));
@@ -454,9 +438,7 @@ State brewing_tick() {
   if (pump_reading.is_error()) {
     display.println("ERR");
   } else {
-    const auto reading = pump_reading.reading();
-    set_temp_led(reading);
-    display.print(reading);
+    display.print(pump_reading.reading());
     display.println(F("F"));
   }
   display.print(F("GH temp: "));
@@ -492,9 +474,7 @@ State flushing_tick() {
   if (pump_reading.is_error()) {
     display.println("ERR");
   } else {
-    const auto reading = pump_reading.reading();
-    set_temp_led(reading);
-    display.print(reading);
+    display.print(pump_reading.reading());
     display.println(F("F"));
   }
   display.print(F("GH temp: "));
@@ -613,6 +593,10 @@ void set_new_state(const State &state) {
   }
 }
 
+void heater_relay_off() { digitalWrite(HEATER_RELAY, LOW); }
+
+void heater_relay_on() { digitalWrite(HEATER_RELAY, HIGH); }
+
 void setup() {
   Serial.begin(9600);
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
@@ -652,6 +636,23 @@ void setup() {
   desired_preinfuse_wait_time_in_milliseconds =
       INITIAL_DESIRED_PREINFUSE_WAIT_TIME_MILLISECONDS;
 
+  heater_pid.SetOutputLimits(0, HEATER_PID_WINDOW_SIZE);
+
+  while (true) {
+    temps.update_samples_blocking();
+
+    const auto reading = temps.average_pump_temperature();
+    if (reading.is_error()) {
+      heater_relay_off();
+      continue;
+    }
+
+    heater_pid.SetOutputLimits(0, HEATER_PID_WINDOW_SIZE);
+    heater_pid.Start(reading.reading(), 0, desired_pump_temperature);
+
+    break;
+  }
+
   preinfusion_enabled = true;
 
   set_new_state(State::Waiting);
@@ -660,8 +661,38 @@ void setup() {
   display.display();
 }
 
+unsigned long heater_window_start = 0;
+
+void control_heater_relay() {
+  const auto reading = temps.average_pump_temperature();
+  if (reading.is_error()) {
+    heater_relay_off();
+    return;
+  }
+
+  const auto temp = reading.reading();
+
+  set_temp_led(temp);
+
+  unsigned long now = millis();
+
+  const auto heater_runtime = heater_pid.Run(temp);
+  Serial.println(heater_runtime);
+
+  if (now - heater_window_start > HEATER_PID_WINDOW_SIZE) {
+    heater_window_start += HEATER_PID_WINDOW_SIZE;
+  }
+  if (heater_runtime < now - heater_window_start) {
+    digitalWrite(HEATER_RELAY, LOW);
+  } else {
+    digitalWrite(HEATER_RELAY, HIGH);
+  }
+}
+
 void loop() {
   temps.update_samples_blocking();
+
+  control_heater_relay();
 
   display.clearDisplay();
   display.setCursor(0, 0);
