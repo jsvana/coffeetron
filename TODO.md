@@ -4,14 +4,15 @@
 - [x] Flush
 - [x] Preinfusion
 - [ ] "Needs flush" warning after brew
-- [ ] Configurable targets
+- [x] Configurable targets
   - [x] Configurable output weight
   - [x] Configurable preinfusion enable
   - [x] Configurable preinfusion pump time
   - [x] Configurable preinfusion wait time
-  - [ ] Configurable brew temperature
+  - [x] Configurable brew temperature
   - [x] Minimum values on configuration selectors
 - [ ] Stat output
+- [ ] Fix screen corruption
 
 ## Head unit
 - [x] Screen
@@ -27,8 +28,8 @@
 - [ ] PCB designed
 
 ## Pump controller
-- [x] Pump temperature
 - [x] Grouphead temperature
 - [x] Pump relay
 - [x] Heater PID controller (~11A)
+- [ ] Pump thermocouple
 - [x] PCB designed
