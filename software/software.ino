@@ -24,6 +24,9 @@ bool preinfusion_enabled;
 
 unsigned long state_start_millis = 0;
 
+unsigned long heater_window_start = 0;
+unsigned long last_report_window = 0;
+
 bool has_most_recent_pour = false;
 unsigned long last_pour_seconds;
 float last_pour_weight;
@@ -36,7 +39,7 @@ Bounce stats_button;
 
 double Kp = 4.5;
 double Ki = 0.175;
-double Kd = 0.4;
+double Kd = 0.5;
 
 PID_v2 heater_pid(Kp, Ki, Kd, PID::Direct);
 
@@ -609,8 +612,6 @@ void setup() {
   display.display();
 }
 
-unsigned long heater_window_start = 0;
-
 void control_heater_relay() {
   const auto reading = temps.average_pump_temperature();
   if (reading.is_error()) {
@@ -622,9 +623,8 @@ void control_heater_relay() {
 
   set_temp_led(temp);
 
-  unsigned long now = millis();
-
   const auto heater_runtime = heater_pid.Run(temp);
+  const auto now = millis();
 
   if (now - heater_window_start > HEATER_PID_WINDOW_SIZE) {
     heater_window_start += HEATER_PID_WINDOW_SIZE;
@@ -636,10 +636,31 @@ void control_heater_relay() {
   }
 }
 
+void report_stats() {
+  const auto reading = temps.average_pump_temperature();
+  if (reading.is_error()) {
+    Serial.println(F("{\"boiler_temp_err\":true}"));
+    return;
+  }
+
+  const auto temp = reading.reading();
+  const auto now = millis();
+
+  const auto current_report_window = now / 1000;
+  if (current_report_window != last_report_window) {
+    /*last_report_window = current_report_window;*/
+    Serial.print(F("{\"boiler_temp_err\":false,\"boiler_temp\":"));
+    Serial.print(temp);
+    Serial.println(F("}"));
+  }
+}
+
 void loop() {
   temps.update_samples_blocking();
 
   control_heater_relay();
+
+  report_stats();
 
   display.clearDisplay();
   display.setCursor(0, 0);
