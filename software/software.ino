@@ -15,6 +15,7 @@ HX711 scale;
 float calibration_factor = 416;
 
 int desired_weight_in_grams;
+int desired_pump_temperature;
 int desired_preinfuse_pump_time_in_milliseconds;
 int desired_preinfuse_wait_time_in_milliseconds;
 
@@ -32,9 +33,13 @@ Bounce flush_button;
 Bounce encoder_button;
 Bounce stats_button;
 
+// TODO: lol
+int heater_relay_state = LOW;
+
 enum State {
   Waiting,
 
+  ConfigurePumpTemp,
   ConfigureWeight,
   ConfigurePreinfuseEnabled,
   ConfigurePreinfusePumpTime,
@@ -57,6 +62,14 @@ Temps<5> temps{A0, A1};
 
 State (*tick_func)();
 
+void set_temp_led(float reading) {
+  if (abs(reading - desired_pump_temperature) < ACCEPTABLE_TEMP_ERROR) {
+    digitalWrite(TEMP_OK_LED, HIGH);
+  } else {
+    digitalWrite(TEMP_OK_LED, LOW);
+  }
+}
+
 State waiting_tick() {
   brew_button.update();
   flush_button.update();
@@ -73,30 +86,89 @@ State waiting_tick() {
       next_state = State::Brewing;
     }
   } else if (flush_button.fell()) {
-    next_state = State::Flushing;
+    // TODO: lol
+    /*next_state = State::Flushing;*/
+    if (heater_relay_state == HIGH) {
+      heater_relay_state = LOW;
+    } else {
+      heater_relay_state = HIGH;
+    }
+
+    next_state = State::Waiting;
   } else if (encoder_button.fell()) {
-    encoder.write(desired_weight_in_grams * 4);
-    next_state = State::ConfigureWeight;
+    encoder.write(desired_pump_temperature * 4);
+    next_state = State::ConfigurePumpTemp;
   } else if (stats_button.fell()) {
     next_state = State::BrewStats;
   } else {
     next_state = State::Waiting;
   }
 
+  digitalWrite(HEATER_RELAY, heater_relay_state);
+
   pump_off();
 
   display.setTextSize(2);
 
-  display.println(F("Coffeetron"));
+  if (heater_relay_state == HIGH) {
+    display.println(F("HEAT ON"));
+  } else {
+    display.println(F("HEAT OFF"));
+  }
+  /*display.println(F("Coffeetron"));*/
 
   display.setTextSize(1);
 
   display.print(F("Pump temp: "));
-  display.print(temps.average_pump_temperature());
-  display.println(F("F"));
+  const auto pump_reading = temps.average_pump_temperature();
+  if (pump_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    const auto reading = pump_reading.reading();
+    set_temp_led(reading);
+    display.print(reading);
+    display.println(F("F"));
+  }
   display.print(F("GH temp: "));
-  display.print(temps.average_grouphead_temperature());
-  display.println(F("F"));
+  const auto grouphead_reading = temps.average_grouphead_temperature();
+  if (grouphead_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    display.print(grouphead_reading.reading());
+    display.println(F("F"));
+  }
+
+  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+
+  return next_state;
+}
+
+State configure_pump_temp_tick() {
+  desired_pump_temperature = encoder.read() / 4;
+
+  if (desired_pump_temperature < 1) {
+    desired_pump_temperature = 1;
+    encoder.write(4);
+  }
+
+  encoder_button.update();
+
+  State next_state;
+  if (encoder_button.fell()) {
+    encoder.write(desired_weight_in_grams * 4);
+    next_state = State::ConfigureWeight;
+  } else {
+    next_state = State::ConfigurePumpTemp;
+  }
+
+  pump_off();
+
+  display.setTextSize(1);
+
+  display.println(F("Set target pump temp"));
+
+  display.print(desired_pump_temperature);
+  display.println(F(" degF"));
 
   display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
 
@@ -266,11 +338,23 @@ State preinfusing_tick() {
   display.println(F(""));
 
   display.print(F("Pump temp: "));
-  display.print(temps.average_pump_temperature());
-  display.println(F("F"));
+  const auto pump_reading = temps.average_pump_temperature();
+  if (pump_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    const auto reading = pump_reading.reading();
+    set_temp_led(reading);
+    display.print(reading);
+    display.println(F("F"));
+  }
   display.print(F("GH temp: "));
-  display.print(temps.average_grouphead_temperature());
-  display.println(F("F"));
+  const auto grouphead_reading = temps.average_grouphead_temperature();
+  if (grouphead_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    display.print(grouphead_reading.reading());
+    display.println(F("F"));
+  }
 
   return next_state;
 }
@@ -285,8 +369,7 @@ State waiting_after_preinfusing_tick() {
     next_state = State::WaitingAfterPreinfusing;
   }
 
-  digitalWrite(LED, HIGH);
-  digitalWrite(PUMP, LOW);
+  pump_off();
 
   display.setTextSize(2);
 
@@ -303,11 +386,23 @@ State waiting_after_preinfusing_tick() {
   display.println(F(""));
 
   display.print(F("Pump temp: "));
-  display.print(temps.average_pump_temperature());
-  display.println(F("F"));
+  const auto pump_reading = temps.average_pump_temperature();
+  if (pump_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    const auto reading = pump_reading.reading();
+    set_temp_led(reading);
+    display.print(reading);
+    display.println(F("F"));
+  }
   display.print(F("GH temp: "));
-  display.print(temps.average_grouphead_temperature());
-  display.println(F("F"));
+  const auto grouphead_reading = temps.average_grouphead_temperature();
+  if (grouphead_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    display.print(grouphead_reading.reading());
+    display.println(F("F"));
+  }
 
   return next_state;
 }
@@ -355,11 +450,23 @@ State brewing_tick() {
   display.println(F("s"));
 
   display.print(F("Pump temp: "));
-  display.print(temps.average_pump_temperature());
-  display.println(F("F"));
+  const auto pump_reading = temps.average_pump_temperature();
+  if (pump_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    const auto reading = pump_reading.reading();
+    set_temp_led(reading);
+    display.print(reading);
+    display.println(F("F"));
+  }
   display.print(F("GH temp: "));
-  display.print(temps.average_grouphead_temperature());
-  display.println(F("F"));
+  const auto grouphead_reading = temps.average_grouphead_temperature();
+  if (grouphead_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    display.print(grouphead_reading.reading());
+    display.println(F("F"));
+  }
 
   return next_state;
 }
@@ -381,11 +488,23 @@ State flushing_tick() {
   display.setTextSize(1);
 
   display.print(F("Pump temp: "));
-  display.print(temps.average_pump_temperature());
-  display.println(F("F"));
+  const auto pump_reading = temps.average_pump_temperature();
+  if (pump_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    const auto reading = pump_reading.reading();
+    set_temp_led(reading);
+    display.print(reading);
+    display.println(F("F"));
+  }
   display.print(F("GH temp: "));
-  display.print(temps.average_grouphead_temperature());
-  display.println(F("F"));
+  const auto grouphead_reading = temps.average_grouphead_temperature();
+  if (grouphead_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    display.print(grouphead_reading.reading());
+    display.println(F("F"));
+  }
 
   display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
 
@@ -445,6 +564,10 @@ void set_new_state(const State &state) {
   switch (state) {
   case State::Waiting:
     tick_func = &waiting_tick;
+    break;
+
+  case State::ConfigurePumpTemp:
+    tick_func = &configure_pump_temp_tick;
     break;
 
   case State::ConfigureWeight:
@@ -514,9 +637,15 @@ void setup() {
   stats_button.attach(11, INPUT_PULLUP);
   stats_button.interval(25);
 
-  pinMode(LED, OUTPUT);
   pinMode(PUMP, OUTPUT);
+  pinMode(HEATER_RELAY, OUTPUT);
+  pinMode(TEMP_OK_LED, OUTPUT);
 
+  digitalWrite(PUMP, LOW);
+  digitalWrite(HEATER_RELAY, LOW);
+  digitalWrite(TEMP_OK_LED, LOW);
+
+  desired_pump_temperature = INITIAL_DESIRED_PUMP_TEMPERATURE;
   desired_weight_in_grams = INITIAL_DESIRED_WEIGHT_GRAMS;
   desired_preinfuse_pump_time_in_milliseconds =
       INITIAL_DESIRED_PREINFUSE_PUMP_TIME_MILLISECONDS;
