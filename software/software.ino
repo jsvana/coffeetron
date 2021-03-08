@@ -74,6 +74,31 @@ void set_temp_led(float reading) {
   }
 }
 
+void display_temps() {
+  display.setTextSize(1);
+
+  display.print(F("Pump temp: "));
+  const auto pump_reading = temps.average_pump_temperature();
+  if (pump_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    display.print(pump_reading.reading());
+    display.println(F("F"));
+  }
+  display.print(F("GH temp: "));
+  const auto grouphead_reading = temps.average_grouphead_temperature();
+  if (grouphead_reading.is_error()) {
+    display.println("ERR");
+  } else {
+    display.print(grouphead_reading.reading());
+    display.println(F("F"));
+  }
+}
+
+void display_coffee_image() {
+  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+}
+
 State waiting_tick() {
   brew_button.update();
   flush_button.update();
@@ -106,26 +131,9 @@ State waiting_tick() {
 
   display.println(F("Coffeetron"));
 
-  display.setTextSize(1);
+  display_temps();
 
-  display.print(F("Pump temp: "));
-  const auto pump_reading = temps.average_pump_temperature();
-  if (pump_reading.is_error()) {
-    display.println("ERR");
-  } else {
-    display.print(pump_reading.reading());
-    display.println(F("F"));
-  }
-  display.print(F("GH temp: "));
-  const auto grouphead_reading = temps.average_grouphead_temperature();
-  if (grouphead_reading.is_error()) {
-    display.println("ERR");
-  } else {
-    display.print(grouphead_reading.reading());
-    display.println(F("F"));
-  }
-
-  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+  display_coffee_image();
 
   return next_state;
 }
@@ -159,7 +167,7 @@ State configure_pump_temp_tick() {
   display.print(desired_pump_temperature);
   display.println(F(" degF"));
 
-  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+  display_coffee_image();
 
   return next_state;
 }
@@ -191,7 +199,7 @@ State configure_weight_tick() {
   display.print(desired_weight_in_grams);
   display.println(F("g"));
 
-  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+  display_coffee_image();
 
   return next_state;
 }
@@ -228,7 +236,7 @@ State configure_preinfuse_enabled_tick() {
 
   display.print(preinfusion_enabled ? "yes" : "no");
 
-  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+  display_coffee_image();
 
   return next_state;
 }
@@ -262,7 +270,7 @@ State configure_preinfuse_pump_time_tick() {
   display.print(desired_preinfuse_pump_time_in_milliseconds / 1000);
   display.println(F("s"));
 
-  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+  display_coffee_image();
 
   return next_state;
 }
@@ -295,7 +303,7 @@ State configure_preinfuse_wait_time_tick() {
   display.print(desired_preinfuse_wait_time_in_milliseconds / 1000);
   display.println(F("s"));
 
-  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+  display_coffee_image();
 
   return next_state;
 }
@@ -326,22 +334,7 @@ State preinfusing_tick() {
 
   display.println(F(""));
 
-  display.print(F("Pump temp: "));
-  const auto pump_reading = temps.average_pump_temperature();
-  if (pump_reading.is_error()) {
-    display.println("ERR");
-  } else {
-    display.print(pump_reading.reading());
-    display.println(F("F"));
-  }
-  display.print(F("GH temp: "));
-  const auto grouphead_reading = temps.average_grouphead_temperature();
-  if (grouphead_reading.is_error()) {
-    display.println("ERR");
-  } else {
-    display.print(grouphead_reading.reading());
-    display.println(F("F"));
-  }
+  display_temps();
 
   return next_state;
 }
@@ -372,22 +365,7 @@ State waiting_after_preinfusing_tick() {
 
   display.println(F(""));
 
-  display.print(F("Pump temp: "));
-  const auto pump_reading = temps.average_pump_temperature();
-  if (pump_reading.is_error()) {
-    display.println("ERR");
-  } else {
-    display.print(pump_reading.reading());
-    display.println(F("F"));
-  }
-  display.print(F("GH temp: "));
-  const auto grouphead_reading = temps.average_grouphead_temperature();
-  if (grouphead_reading.is_error()) {
-    display.println("ERR");
-  } else {
-    display.print(grouphead_reading.reading());
-    display.println(F("F"));
-  }
+  display_temps();
 
   return next_state;
 }
@@ -433,22 +411,7 @@ State brewing_tick() {
   display.print((now - state_start_millis) / 1000);
   display.println(F("s"));
 
-  display.print(F("Pump temp: "));
-  const auto pump_reading = temps.average_pump_temperature();
-  if (pump_reading.is_error()) {
-    display.println("ERR");
-  } else {
-    display.print(pump_reading.reading());
-    display.println(F("F"));
-  }
-  display.print(F("GH temp: "));
-  const auto grouphead_reading = temps.average_grouphead_temperature();
-  if (grouphead_reading.is_error()) {
-    display.println("ERR");
-  } else {
-    display.print(grouphead_reading.reading());
-    display.println(F("F"));
-  }
+  display_temps();
 
   return next_state;
 }
@@ -469,24 +432,9 @@ State flushing_tick() {
 
   display.setTextSize(1);
 
-  display.print(F("Pump temp: "));
-  const auto pump_reading = temps.average_pump_temperature();
-  if (pump_reading.is_error()) {
-    display.println("ERR");
-  } else {
-    display.print(pump_reading.reading());
-    display.println(F("F"));
-  }
-  display.print(F("GH temp: "));
-  const auto grouphead_reading = temps.average_grouphead_temperature();
-  if (grouphead_reading.is_error()) {
-    display.println("ERR");
-  } else {
-    display.print(grouphead_reading.reading());
-    display.println(F("F"));
-  }
+  display_temps();
 
-  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+  display_coffee_image();
 
   return next_state;
 }
@@ -519,7 +467,7 @@ State brew_stats_tick() {
     display.println(F("No pour found"));
   }
 
-  display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
+  display_coffee_image();
 
   return next_state;
 }
