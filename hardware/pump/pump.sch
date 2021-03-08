@@ -15,47 +15,14 @@ Comment4 ""
 $EndDescr
 $Comp
 L Device:R R1
-U 1 1 603D9A99
-P 3750 3500
-F 0 "R1" V 3543 3500 50  0000 C CNN
-F 1 "10000" V 3634 3500 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 3680 3500 50  0001 C CNN
-F 3 "~" H 3750 3500 50  0001 C CNN
-	1    3750 3500
-	0    1    1    0   
-$EndComp
-$Comp
-L Device:R R2
 U 1 1 603DA608
 P 3750 4200
-F 0 "R2" V 3543 4200 50  0000 C CNN
+F 0 "R1" V 3543 4200 50  0000 C CNN
 F 1 "10000" V 3634 4200 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 3680 4200 50  0001 C CNN
 F 3 "~" H 3750 4200 50  0001 C CNN
 	1    3750 4200
 	0    1    1    0   
-$EndComp
-$Comp
-L Connector:Conn_01x02_Female J2
-U 1 1 603DD8F9
-P 4050 3300
-F 0 "J2" V 3988 3112 50  0000 R CNN
-F 1 "GroupheadThermistor" V 3897 3112 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 4050 3300 50  0001 C CNN
-F 3 "~" H 4050 3300 50  0001 C CNN
-	1    4050 3300
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Connector:Conn_01x02_Female J3
-U 1 1 603DF456
-P 4050 4000
-F 0 "J3" V 3988 3812 50  0000 R CNN
-F 1 "PumpThermistor" V 3897 3812 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 4050 4000 50  0001 C CNN
-F 3 "~" H 4050 4000 50  0001 C CNN
-	1    4050 4000
-	0    -1   -1   0   
 $EndComp
 $Comp
 L Connector:Screw_Terminal_01x02 J4
@@ -69,10 +36,10 @@ F 3 "~" H 5050 5300 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:R R3
+L Device:R R4
 U 1 1 603C2CFA
 P 3200 5100
-F 0 "R3" V 2993 5100 50  0000 C CNN
+F 0 "R4" V 2993 5100 50  0000 C CNN
 F 1 "220" V 3084 5100 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 3130 5100 50  0001 C CNN
 F 3 "~" H 3200 5100 50  0001 C CNN
@@ -84,12 +51,12 @@ Wire Wire Line
 $Comp
 L power:GND #PWR0101
 U 1 1 6041A9D6
-P 4150 3500
-F 0 "#PWR0101" H 4150 3250 50  0001 C CNN
-F 1 "GND" H 4155 3327 50  0000 C CNN
-F 2 "" H 4150 3500 50  0001 C CNN
-F 3 "" H 4150 3500 50  0001 C CNN
-	1    4150 3500
+P 4150 3200
+F 0 "#PWR0101" H 4150 2950 50  0001 C CNN
+F 1 "GND" H 4155 3027 50  0000 C CNN
+F 2 "" H 4150 3200 50  0001 C CNN
+F 3 "" H 4150 3200 50  0001 C CNN
+	1    4150 3200
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -195,7 +162,7 @@ F 3 "" H 3700 2650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L omron:G3MC202PDC5 K1
+L pump-rescue:G3MC202PDC5-omron K1
 U 1 1 60431DDA
 P 3400 5150
 F 0 "K1" H 4000 5515 50  0000 C CNN
@@ -239,23 +206,21 @@ Connection ~ 3200 5650
 Wire Wire Line
 	3200 4950 3500 4950
 Wire Wire Line
-	3900 3500 4050 3500
-Wire Wire Line
 	3900 4200 4050 4200
 Text GLabel 3950 4200 3    50   Input ~ 0
 GH_TEMP
-Text GLabel 3950 3500 3    50   Input ~ 0
+Text GLabel 4050 3400 3    50   Input ~ 0
 PUMP_TEMP
 $Comp
 L power:+5V #PWR03
 U 1 1 60455B71
-P 3600 3500
-F 0 "#PWR03" H 3600 3350 50  0001 C CNN
-F 1 "+5V" V 3615 3628 50  0000 L CNN
-F 2 "" H 3600 3500 50  0001 C CNN
-F 3 "" H 3600 3500 50  0001 C CNN
-	1    3600 3500
-	0    -1   -1   0   
+P 3850 3200
+F 0 "#PWR03" H 3850 3050 50  0001 C CNN
+F 1 "+5V" V 3865 3328 50  0000 L CNN
+F 2 "" H 3850 3200 50  0001 C CNN
+F 3 "" H 3850 3200 50  0001 C CNN
+	1    3850 3200
+	-1   0    0    1   
 $EndComp
 $Comp
 L power:+5V #PWR04
@@ -315,19 +280,19 @@ PUMP
 $Comp
 L Connector:Screw_Terminal_01x02 J5
 U 1 1 60460D76
-P 3800 6700
-F 0 "J5" H 3880 6692 50  0000 L CNN
-F 1 "HeaterRelayConnect" H 3880 6601 50  0000 L CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal" H 3800 6700 50  0001 C CNN
-F 3 "~" H 3800 6700 50  0001 C CNN
-	1    3800 6700
+P 3950 6700
+F 0 "J5" H 4030 6692 50  0000 L CNN
+F 1 "HeaterRelayConnect" H 4030 6601 50  0000 L CNN
+F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal" H 3950 6700 50  0001 C CNN
+F 3 "~" H 3950 6700 50  0001 C CNN
+	1    3950 6700
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:R R4
+L Device:R R3
 U 1 1 60461CD5
 P 3200 6550
-F 0 "R4" V 2993 6550 50  0000 C CNN
+F 0 "R3" V 2993 6550 50  0000 C CNN
 F 1 "220" V 3084 6550 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 3130 6550 50  0001 C CNN
 F 3 "~" H 3200 6550 50  0001 C CNN
@@ -359,10 +324,6 @@ $EndComp
 Wire Wire Line
 	3200 6400 3600 6400
 Wire Wire Line
-	3600 6400 3600 6700
-Wire Wire Line
-	3600 6800 3600 7050
-Wire Wire Line
 	3600 7050 3200 7050
 Wire Wire Line
 	3200 7050 3200 7000
@@ -384,4 +345,56 @@ Wire Wire Line
 	4650 5050 4650 5400
 Wire Wire Line
 	4650 5400 4850 5400
+$Comp
+L Device:R R2
+U 1 1 604696BA
+P 3600 6550
+F 0 "R2" V 3393 6550 50  0000 C CNN
+F 1 "680" V 3484 6550 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 3530 6550 50  0001 C CNN
+F 3 "~" H 3600 6550 50  0001 C CNN
+	1    3600 6550
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	3600 6700 3750 6700
+Wire Wire Line
+	3750 6800 3600 6800
+Wire Wire Line
+	3600 6800 3600 7050
+$Comp
+L Connector:Conn_01x04_Male J2
+U 1 1 6046E101
+P 4050 3000
+F 0 "J2" V 4112 3144 50  0000 L CNN
+F 1 "PumpThermocoupleAdc" V 4203 3144 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 4050 3000 50  0001 C CNN
+F 3 "~" H 4050 3000 50  0001 C CNN
+	1    4050 3000
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector:Conn_01x02_Male J3
+U 1 1 604708B7
+P 4150 4000
+F 0 "J3" V 4212 4044 50  0000 L CNN
+F 1 "GroupheadThermistor" V 4303 4044 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 4150 4000 50  0001 C CNN
+F 3 "~" H 4150 4000 50  0001 C CNN
+	1    4150 4000
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR05
+U 1 1 60471B90
+P 3950 3200
+F 0 "#PWR05" H 3950 2950 50  0001 C CNN
+F 1 "GND" H 3955 3027 50  0000 C CNN
+F 2 "" H 3950 3200 50  0001 C CNN
+F 3 "" H 3950 3200 50  0001 C CNN
+	1    3950 3200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4050 3200 4050 3400
 $EndSCHEMATC

@@ -1,0 +1,87 @@
+EESchema-LIBRARY Version 2.4
+#encoding utf-8
+#
+# G3MC202PDC5-omron
+#
+DEF G3MC202PDC5-omron K 0 40 Y Y 1 L N
+F0 "K" 0 300 50 H V L CNN
+F1 "G3MC202PDC5-omron" 0 400 50 H V L CNN
+F2 "Omron-G3MC202PDC5-0-0-*" 0 500 50 H I L CNN
+F3 "http://omronfs.omron.com/en_US/ecb/products/pdf/en-g3mc.pdf" 0 600 50 H I L CNN
+F4 "+80°C" 0 700 50 H I L CNN "ambient temperature range high"
+F5 "-30°C" 0 800 50 H I L CNN "ambient temperature range low"
+F6 "Relay" 0 900 50 H I L CNN "category"
+F7 "Electromechanical" 0 1000 50 H I L CNN "device class L1"
+F8 "Relays" 0 1100 50 H I L CNN "device class L2"
+F9 "Solid State Relays" 0 1200 50 H I L CNN "device class L3"
+F10 "RELAY SSR SPST-NO SIP 5VDC" 0 1300 50 H I L CNN "digikey description"
+F11 "Z2987-ND" 0 1400 50 H I L CNN "digikey part number"
+F12 "20.5mm" 0 1500 50 H I L CNN "height"
+F13 "yes" 0 1600 50 H I L CNN "lead free"
+F14 "eac7530ef8727681" 0 1700 50 H I L CNN "library id"
+F15 "Omron" 0 1800 50 H I L CNN "manufacturer"
+F16 "Solid State Relays - PCB Mount 5VDC/100-240VAC 2A Zero cross snubber" 0 1900 50 H I L CNN "mouser description"
+F17 "653-G3MC-202P-DC5" 0 2000 50 H I L CNN "mouser part number"
+F18 "1" 0 2100 50 H I L CNN "number of contacts"
+F19 "2A" 0 2200 50 H I L CNN "output current"
+F20 "1.6V" 0 2300 50 H I L CNN "output voltage"
+F21 "PTH_RELAY" 0 2400 50 H I L CNN "package"
+F22 "yes" 0 2500 50 H I L CNN "rohs"
+F23 "0.8mm" 0 2600 50 H I L CNN "standoff height"
+F24 "+80°C" 0 2700 50 H I L CNN "temperature range high"
+F25 "-30°C" 0 2800 50 H I L CNN "temperature range low"
+F26 "SPST-NO" 0 2900 50 H I L CNN "throw configuration"
+F27 "100-240V" 0 3000 50 H I L CNN "voltage rating AC"
+DRAW
+S 200 200 1000 -600 1 1 0 f
+P 2 1 1 0 200 0 400 0 N
+P 2 1 1 0 300 -300 500 -300 N
+P 2 1 1 0 300 -200 400 -300 N
+P 2 1 1 0 400 -400 200 -400 N
+P 2 1 1 0 400 -300 300 -300 N
+P 2 1 1 0 400 -300 400 -400 N
+P 2 1 1 0 400 -300 500 -200 N
+P 2 1 1 0 400 -200 300 -200 N
+P 2 1 1 0 400 0 400 -200 N
+P 2 1 1 0 450 -70 510 -120 N
+P 2 1 1 0 450 -10 500 -70 N
+P 2 1 1 0 500 -300 400 -300 N
+P 2 1 1 0 500 -200 400 -200 N
+P 2 1 1 0 500 -130 520 -110 N
+P 2 1 1 0 500 -70 450 -70 N
+P 2 1 1 0 510 -120 500 -130 N
+P 2 1 1 0 520 -110 530 -140 N
+P 2 1 1 0 530 -140 500 -130 N
+P 2 1 1 0 640 -390 680 -390 N
+P 2 1 1 0 640 10 640 -390 N
+P 2 1 1 0 690 10 640 10 N
+P 2 1 1 0 700 -300 700 -500 N
+P 2 1 1 0 700 100 700 -100 N
+P 2 1 1 0 740 -500 740 -570 N
+P 2 1 1 0 740 -500 1000 -500 N
+P 2 1 1 0 740 -390 740 -460 N
+P 2 1 1 0 740 -290 740 -360 N
+P 2 1 1 0 740 -100 810 -100 N
+P 2 1 1 0 740 -60 740 -130 N
+P 2 1 1 0 740 30 740 -30 N
+P 2 1 1 0 740 100 1000 100 N
+P 2 1 1 0 740 140 740 70 N
+P 2 1 1 0 750 -420 780 -390 N
+P 2 1 1 0 750 -420 820 -420 N
+P 2 1 1 0 750 -310 810 -310 N
+P 2 1 1 0 760 0 780 30 N
+P 2 1 1 0 780 -450 750 -420 N
+P 2 1 1 0 780 -390 780 -450 N
+P 2 1 1 0 780 -30 760 0 N
+P 2 1 1 0 780 30 780 -30 N
+P 2 1 1 0 800 0 800 0 N
+P 2 1 1 0 820 -420 820 0 N
+P 2 1 1 0 820 0 760 0 N
+X 1 1 1100 100 100 L 40 0 1 1 P
+X 2 2 1100 -500 100 L 40 0 1 1 P
+X + 3 100 0 100 R 40 0 1 1 P
+X - 4 100 -400 100 R 40 0 1 1 P
+ENDDRAW
+ENDDEF
+#
+#End Library
