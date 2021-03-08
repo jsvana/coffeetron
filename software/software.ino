@@ -677,7 +677,6 @@ void control_heater_relay() {
   unsigned long now = millis();
 
   const auto heater_runtime = heater_pid.Run(temp);
-  Serial.println(heater_runtime);
 
   if (now - heater_window_start > HEATER_PID_WINDOW_SIZE) {
     heater_window_start += HEATER_PID_WINDOW_SIZE;
