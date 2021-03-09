@@ -22,13 +22,13 @@ int desired_preinfuse_wait_time_in_milliseconds;
 
 bool preinfusion_enabled;
 
-unsigned long state_start_millis = 0;
+unsigned short state_start_millis = 0;
 
 unsigned long heater_window_start = 0;
-unsigned long last_report_window = 0;
+unsigned short last_report_window = 0;
 
 bool has_most_recent_pour = false;
-unsigned long last_pour_seconds;
+unsigned short last_pour_seconds;
 float last_pour_weight;
 
 Encoder encoder(2, 3);
@@ -37,9 +37,9 @@ Bounce flush_button;
 Bounce encoder_button;
 Bounce stats_button;
 
-double Kp = 4.5;
-double Ki = 0.175;
-double Kd = 0.5;
+const float Kp = 4.5;
+const float Ki = 0.175;
+const float Kd = 0.5;
 
 PID_v2 heater_pid(Kp, Ki, Kd, PID::Direct);
 
@@ -65,7 +65,7 @@ enum State {
 
 State current_state;
 
-Temps<5> temps{A0, A1};
+Temps<5, A0, A1> temps;
 
 State (*tick_func)();
 
@@ -83,7 +83,7 @@ void display_temps() {
   display.print(F("Pump temp: "));
   const auto pump_reading = temps.average_pump_temperature();
   if (pump_reading.is_error()) {
-    display.println("ERR");
+    display.println(F("ERR"));
   } else {
     display.print(pump_reading.reading());
     display.println(F("F"));
@@ -91,7 +91,7 @@ void display_temps() {
   display.print(F("GH temp: "));
   const auto grouphead_reading = temps.average_grouphead_temperature();
   if (grouphead_reading.is_error()) {
-    display.println("ERR");
+    display.println(F("ERR"));
   } else {
     display.print(grouphead_reading.reading());
     display.println(F("F"));
@@ -501,6 +501,7 @@ void set_new_state(const State &state) {
     tick_func = &configure_pump_temp_tick;
     break;
 
+  /*
   case State::ConfigureWeight:
     tick_func = &configure_weight_tick;
     break;
@@ -516,6 +517,7 @@ void set_new_state(const State &state) {
   case State::ConfigurePreinfuseWaitTime:
     tick_func = &configure_preinfuse_wait_time_tick;
     break;
+    */
 
   case State::Flushing:
     tick_func = &flushing_tick;
@@ -551,7 +553,7 @@ void heater_relay_on() { digitalWrite(HEATER_RELAY, HIGH); }
 void setup() {
   Serial.begin(9600);
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println("failed to initialize OLED display");
+    Serial.println(F("failed to initialize OLED display"));
     for (;;)
       ; // Don't proceed, loop forever
   }
@@ -646,9 +648,9 @@ void report_stats() {
   const auto temp = reading.reading();
   const auto now = millis();
 
-  const auto current_report_window = now / 1000;
+  const unsigned short current_report_window = now / 1000;
   if (current_report_window != last_report_window) {
-    /*last_report_window = current_report_window;*/
+    last_report_window = current_report_window;
     Serial.print(F("{\"boiler_temp_err\":false,\"boiler_temp\":"));
     Serial.print(temp);
     Serial.println(F("}"));

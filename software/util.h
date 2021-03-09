@@ -67,13 +67,7 @@ TempReading temp_success(float reading) {
   return TempReading(reading, /* is_error = */ false);
 }
 
-template <int S> class Temps {
-  const int pump_pin_;
-  const int grouphead_pin_;
-  const int sample_count_;
-
-  unsigned int samples_;
-
+template <int S, int PumpPin, int GroupheadPin> class Temps {
   WindowedReading<S> pump_temps_;
   WindowedReading<S> grouphead_temps_;
 
@@ -86,25 +80,9 @@ template <int S> class Temps {
   }
 
 public:
-  Temps(int pump_pin, int grouphead_pin, int sample_count)
-      : pump_pin_(pump_pin), grouphead_pin_(grouphead_pin),
-        sample_count_(sample_count) {
-    samples_ = 0;
-  }
-
-  Temps(int pump_pin, int grouphead_pin) : Temps(pump_pin, grouphead_pin, 5) {}
-
   void update_samples_blocking() {
-    do {
-      pump_temps_.add_value(temp_in_fahrenheit(pump_pin_));
-      grouphead_temps_.add_value(temp_in_fahrenheit(grouphead_pin_));
-
-      samples_ += 1;
-
-      const auto now = millis();
-
-      delayMicroseconds(100);
-    } while (samples_ % sample_count_ != 0);
+    pump_temps_.add_value(temp_in_fahrenheit(PumpPin));
+    grouphead_temps_.add_value(temp_in_fahrenheit(GroupheadPin));
   }
 
   TempReading average_pump_temperature() {
