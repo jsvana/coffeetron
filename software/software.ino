@@ -501,7 +501,6 @@ void set_new_state(const State &state) {
     tick_func = &configure_pump_temp_tick;
     break;
 
-  /*
   case State::ConfigureWeight:
     tick_func = &configure_weight_tick;
     break;
@@ -517,7 +516,6 @@ void set_new_state(const State &state) {
   case State::ConfigurePreinfuseWaitTime:
     tick_func = &configure_preinfuse_wait_time_tick;
     break;
-    */
 
   case State::Flushing:
     tick_func = &flushing_tick;

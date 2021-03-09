@@ -28,4 +28,4 @@ fp-info-cache
 *.csv
 
 .DS_Store
-graph.png
+software/data_consumer/*.png
