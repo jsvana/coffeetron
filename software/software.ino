@@ -639,20 +639,35 @@ void control_heater_relay() {
 }
 
 void report_stats() {
-  const auto reading = temps.average_pump_temperature();
-  if (reading.is_error()) {
-    Serial.println(F("{\"boiler_temp_err\":true}"));
-    return;
+  const auto boiler_reading = temps.average_pump_temperature();
+  bool boiler_temp_error = false;
+  if (boiler_reading.is_error()) {
+    boiler_temp_error = true;
   }
 
-  const auto temp = reading.reading();
+  const auto boiler_temp = boiler_reading.reading();
+
+  const auto grouphead_reading = temps.average_grouphead_temperature();
+  bool grouphead_temp_error = false;
+  if (grouphead_reading.is_error()) {
+    grouphead_temp_error = true;
+  }
+
+  const auto grouphead_temp = grouphead_reading.reading();
+
   const auto now = millis();
 
   const unsigned short current_report_window = now / 1000;
   if (current_report_window != last_report_window) {
     last_report_window = current_report_window;
-    Serial.print(F("{\"boiler_temp_err\":false,\"boiler_temp\":"));
-    Serial.print(temp);
+    Serial.print(F("{\"boiler_temp_err\":"));
+    Serial.print(boiler_temp_error ? F("true") : F("false"));
+    Serial.print(F(",\"boiler_temp\":"));
+    Serial.print(boiler_temp);
+    Serial.print(F(",\"grouphead_temp_err\":"));
+    Serial.print(grouphead_temp_error ? F("true") : F("false"));
+    Serial.print(F(",\"grouphead_temp\":"));
+    Serial.print(grouphead_temp);
     Serial.println(F("}"));
   }
 }
