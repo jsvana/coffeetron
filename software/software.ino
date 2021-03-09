@@ -664,6 +664,8 @@ void report_stats() {
     Serial.print(boiler_temp_error ? F("true") : F("false"));
     Serial.print(F(",\"boiler_temp\":"));
     Serial.print(boiler_temp);
+    Serial.print(F(",\"target_boiler_temp\":"));
+    Serial.print(desired_pump_temperature);
     Serial.print(F(",\"grouphead_temp_err\":"));
     Serial.print(grouphead_temp_error ? F("true") : F("false"));
     Serial.print(F(",\"grouphead_temp\":"));
