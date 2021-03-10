@@ -26,6 +26,7 @@ unsigned short state_start_millis = 0;
 
 unsigned long heater_window_start = 0;
 unsigned short last_report_window = 0;
+unsigned short last_brew_report_window = 0;
 
 bool has_most_recent_pour = false;
 unsigned short last_pour_seconds;
@@ -102,6 +103,30 @@ void display_coffee_image() {
   display.drawBitmap(0, 32, coffee_bitmap, 128, 32, WHITE);
 }
 
+void send_preinfusion_start_event() {
+  Serial.println(F("{\"type\":\"event\",\"event\":\"preinfusion_start\"}"));
+}
+
+void send_preinfusion_done_event() {
+  Serial.println(F("{\"type\":\"event\",\"event\":\"preinfusion_end\"}"));
+}
+
+void send_brew_start_event() {
+  Serial.println(F("{\"type\":\"event\",\"event\":\"brew_start\"}"));
+}
+
+void send_brew_done_event() {
+  Serial.println(F("{\"type\":\"event\",\"event\":\"brew_end\"}"));
+}
+
+void send_flush_start_event() {
+  Serial.println(F("{\"type\":\"event\",\"event\":\"flush_start\"}"));
+}
+
+void send_flush_done_event() {
+  Serial.println(F("{\"type\":\"event\",\"event\":\"flush_end\"}"));
+}
+
 State waiting_tick() {
   brew_button.update();
   flush_button.update();
@@ -114,11 +139,14 @@ State waiting_tick() {
 
     if (preinfusion_enabled) {
       next_state = State::Preinfusing;
+      send_preinfusion_start_event();
     } else {
       next_state = State::Brewing;
+      send_brew_start_event();
     }
   } else if (flush_button.fell()) {
     next_state = State::Flushing;
+    send_flush_start_event();
   } else if (encoder_button.fell()) {
     encoder.write(desired_pump_temperature * 4);
     next_state = State::ConfigurePumpTemp;
@@ -317,6 +345,7 @@ State preinfusing_tick() {
   State next_state;
   if (now - state_start_millis > desired_preinfuse_pump_time_in_milliseconds) {
     next_state = State::WaitingAfterPreinfusing;
+    send_preinfusion_done_event();
   } else {
     next_state = State::Preinfusing;
   }
@@ -348,6 +377,7 @@ State waiting_after_preinfusing_tick() {
   State next_state;
   if (now - state_start_millis > desired_preinfuse_wait_time_in_milliseconds) {
     next_state = State::Brewing;
+    send_brew_start_event();
   } else {
     next_state = State::WaitingAfterPreinfusing;
   }
@@ -379,6 +409,14 @@ State brewing_tick() {
   // Note that this is very slow
   const auto weight = scale.get_units();
 
+  const unsigned short current_brew_report_window = now / 1000;
+  if (current_brew_report_window != last_brew_report_window) {
+    last_brew_report_window = current_brew_report_window;
+    Serial.print(F("{\"type\":\"brew\",\"weight\":"));
+    Serial.print(weight);
+    Serial.println(F("}"));
+  }
+
   State next_state;
 
   if (weight > desired_weight_in_grams) {
@@ -388,6 +426,8 @@ State brewing_tick() {
     last_pour_weight = weight;
 
     has_most_recent_pour = true;
+
+    send_brew_done_event();
 
     next_state = State::Waiting;
   } else {
@@ -422,6 +462,8 @@ State brewing_tick() {
 State flushing_tick() {
   State next_state;
   if (millis() - state_start_millis > FLUSH_TIME_MILLIS) {
+    send_flush_done_event();
+
     next_state = State::Waiting;
   } else {
     next_state = State::Flushing;
@@ -658,7 +700,7 @@ void report_stats() {
   const unsigned short current_report_window = now / 1000;
   if (current_report_window != last_report_window) {
     last_report_window = current_report_window;
-    Serial.print(F("{\"boiler_temp_err\":"));
+    Serial.print(F("{\"type\":\"temp\",\"boiler_temp_err\":"));
     Serial.print(boiler_temp_error ? F("true") : F("false"));
     Serial.print(F(",\"boiler_temp\":"));
     Serial.print(boiler_temp);
