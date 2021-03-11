@@ -137,6 +137,10 @@ if len(sys.argv) > 1 and sys.argv[1] == "--existing":
 
 chart = CoffeeChart()
 
+now = int(time.time())
+data_file = "brew.{}.json".format(now)
+graph_image = "brew.{}.png".format(now)
+
 with serial.Serial('/dev/ttyACM0') as ser:
     while True:
         line = ser.readline().decode().strip()
@@ -148,7 +152,5 @@ with serial.Serial('/dev/ttyACM0') as ser:
 
         chart.add_row(row)
 
-        # if chart.datapoint_count % 10 == 0:
-        chart.write_datapoints(DATA_FILE)
-
-        chart.generate_chart(GRAPH_IMAGE)
+        chart.write_datapoints(data_file)
+        chart.generate_chart(graph_image)

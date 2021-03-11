@@ -29,3 +29,4 @@ fp-info-cache
 
 .DS_Store
 software/data_consumer/*.png
+software/data_consumer/*.json

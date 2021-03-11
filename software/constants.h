@@ -29,6 +29,10 @@
 #define INITIAL_DESIRED_PREINFUSE_PUMP_TIME_MILLISECONDS 3000
 #define INITIAL_DESIRED_PREINFUSE_WAIT_TIME_MILLISECONDS 7000
 
+#define PID_KP 4.5
+#define PID_KI 0.175
+#define PID_KD 0.7
+
 // Cute coffee cup bitmap to display, 128x32 pixels
 const unsigned char coffee_bitmap[] PROGMEM = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

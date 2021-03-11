@@ -22,7 +22,7 @@ int desired_preinfuse_wait_time_in_milliseconds;
 
 bool preinfusion_enabled;
 
-unsigned short state_start_millis = 0;
+unsigned long state_start_millis = 0;
 
 unsigned long heater_window_start = 0;
 unsigned short last_report_window = 0;
@@ -38,11 +38,7 @@ Bounce flush_button;
 Bounce encoder_button;
 Bounce stats_button;
 
-const float Kp = 4.5;
-const float Ki = 0.175;
-const float Kd = 0.5;
-
-PID_v2 heater_pid(Kp, Ki, Kd, PID::Direct);
+PID_v2 heater_pid(PID_KP, PID_KI, PID_KD, PID::Direct);
 
 enum State {
   Waiting,
