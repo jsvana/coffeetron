@@ -28,5 +28,7 @@ fp-info-cache
 *.csv
 
 .DS_Store
+
 software/data_consumer/*.png
 software/data_consumer/*.json
+software/data_consumer/config.py

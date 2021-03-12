@@ -1,4 +1,3 @@
-# TODO: Pipfile
 # TODO: config
 # TODO: format
 # TODO: argparse
@@ -6,9 +5,12 @@ import json
 import sys
 import time
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from typing import Any, Dict, List
 
 import serial
+from influxdb_client import WritePrecision, InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
 from matplotlib import pyplot
 from matplotlib.cm import get_cmap
 
@@ -42,6 +44,10 @@ class CoffeeChart:
         self.target_boiler_temp = 0
 
         self.y_marks = []
+
+        self.client = InfluxDBClient(url="http://localhost:8086", token="asdf", org="olympus")
+
+        self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
 
         start_time = int(time.time())
 
@@ -116,24 +122,58 @@ class CoffeeChart:
 
         pyplot.savefig(path)
 
+    def write_measurement(
+        self,
+        measurement: str,
+        field: str,
+        value: Any,
+    ) -> Dict[str, Any]:
+        point = Point(measurement).tag("location", "garage").field(field, value).time(
+            datetime.utcnow(),  WritePrecision.MS,
+        )
+        # print(point.to_line_protocol())
+        # point = Point("my_measurement").tag("location", "Prague").field("temperature", 25.3).time(datetime.now(), WritePrecision.MS)
+        self.write_api.write(bucket="espresso", org="olympus", record=point)
+
+    def send_row_to_influx(self, row: Dict[str, Any]) -> None:
+        row_time = int(time.time())
+
+        if row["type"] == "event":
+            self.write_measurement(
+                "event",
+                "event",
+                row["event"],
+            )
+        elif row["type"] == "temp":
+            self.write_measurement(
+                "boiler_temp",
+                "temperature",
+                row["boiler_temp"],
+            )
+
+            self.write_measurement(
+                "grouphead_temp",
+                "temperature",
+                row["grouphead_temp"],
+            )
+
+            self.write_measurement(
+                "target_boiler_temp",
+                "temperature",
+                row["target_boiler_temp"],
+            )
+        elif row["type"] == "brew":
+            self.write_measurement(
+                "brew",
+                "weight",
+                row["weight"],
+            )
+        else:
+            raise ValueError('Unsupported row type "{}"'.format(row["type"]))
+
 
 DATA_FILE = "/home/jsvana/tmp/brew_data.json"
 GRAPH_IMAGE = "graph2.png"
-
-"""
-if len(sys.argv) > 1 and sys.argv[1] == "--existing":
-    with open(DATA_FILE, "r") as f:
-        data = json.load(f)
-
-    pyplot.plot(data["x_series"], data["y_series"])
-    pyplot.axhline(y=data["target_boiler_temp"], color="r", linestyle="-")
-    pyplot.xlabel("Seconds from start")
-    pyplot.ylabel("Boiler temp")
-    pyplot.title("Boiler temp over time")
-    pyplot.savefig(GRAPH_IMAGE)
-
-    sys.exit(0)
-"""
 
 chart = CoffeeChart()
 
@@ -150,7 +190,9 @@ with serial.Serial('/dev/ttyACM0') as ser:
         except json.decoder.JSONDecodeError:
             continue
 
-        chart.add_row(row)
+        chart.send_row_to_influx(row)
 
-        chart.write_datapoints(data_file)
-        chart.generate_chart(graph_image)
+        # chart.add_row(row)
+
+        # chart.write_datapoints(data_file)
+        # chart.generate_chart(graph_image)

@@ -651,6 +651,12 @@ void setup() {
 }
 
 void control_heater_relay() {
+  // Disable heater while pulling a shot
+  if (current_state == State::Brewing) {
+    heater_relay_off();
+    return;
+  }
+
   const auto reading = temps.average_pump_temperature();
   if (reading.is_error()) {
     heater_relay_off();
@@ -667,10 +673,11 @@ void control_heater_relay() {
   if (now - heater_window_start > HEATER_PID_WINDOW_SIZE) {
     heater_window_start += HEATER_PID_WINDOW_SIZE;
   }
+
   if (heater_runtime < now - heater_window_start) {
-    digitalWrite(HEATER_RELAY, LOW);
+    heater_relay_off();
   } else {
-    digitalWrite(HEATER_RELAY, HIGH);
+    heater_relay_on();
   }
 }
 
