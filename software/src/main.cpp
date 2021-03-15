@@ -121,7 +121,7 @@ void send_brew_done_event() {
   Serial.print(last_pour_seconds);
   Serial.print(F(",\"total_weight\":"));
   Serial.print(last_pour_weight);
-  Serial.print(F("}"));
+  Serial.println(F("}"));
 }
 
 void send_flush_start_event() {
@@ -419,7 +419,7 @@ State brewing_tick() {
     last_brew_report_window = current_brew_report_window;
     Serial.print(F("{\"type\":\"brew\",\"weight\":"));
     Serial.print(weight);
-    Serial.println(F(",\"target_weight\":"));
+    Serial.print(F(",\"target_weight\":"));
     Serial.print(desired_weight_in_grams);
     Serial.println(F("}"));
   }
