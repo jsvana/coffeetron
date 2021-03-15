@@ -2,6 +2,7 @@
 
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_SSD1306.h>
+#include <ArduinoJson.h>
 #include <Bounce2.h>
 #include <Encoder.h>
 #include <HX711.h>
@@ -43,6 +44,8 @@ Bounce encoder_button;
 Bounce stats_button;
 
 PID_v2 heater_pid(PID_KP, PID_KI, PID_KD, PID::Direct);
+
+DynamicJsonDocument doc(1024);
 
 enum State {
   Waiting,
@@ -104,32 +107,63 @@ void display_coffee_image() {
 }
 
 void send_preinfusion_start_event() {
-  Serial.println(F("{\"type\":\"event\",\"event\":\"preinfusion_start\"}"));
+  doc.clear();
+
+  doc["type"] = "event";
+  doc["event"] = "preinfusion_start";
+  serializeJson(doc, Serial);
+  Serial.println();
 }
 
 void send_preinfusion_done_event() {
-  Serial.println(F("{\"type\":\"event\",\"event\":\"preinfusion_end\"}"));
+  doc.clear();
+
+  doc["type"] = "event";
+  doc["event"] = "preinfusion_end";
+  serializeJson(doc, Serial);
+  Serial.println();
 }
 
 void send_brew_start_event() {
-  Serial.println(F("{\"type\":\"event\",\"event\":\"brew_start\"}"));
+  doc.clear();
+
+  doc["type"] = "event";
+  doc["event"] = "brew_start";
+  serializeJson(doc, Serial);
+  Serial.println();
 }
 
 void send_brew_done_event() {
-  Serial.print(
-      F("{\"type\":\"event\",\"event\":\"brew_end\",\"total_seconds\":"));
-  Serial.print(last_pour_seconds);
-  Serial.print(F(",\"total_weight\":"));
-  Serial.print(last_pour_weight);
-  Serial.println(F("}"));
+  doc.clear();
+
+  doc["type"] = "event";
+  doc["event"] = "brew_end";
+  doc["total_seconds"] = last_pour_seconds;
+  doc["total_weight"] = last_pour_weight;
+  doc["preinfusion_pump_time_millis"] =
+      desired_preinfuse_pump_time_in_milliseconds;
+  doc["preinfusion_wait_time_millis"] =
+      desired_preinfuse_wait_time_in_milliseconds;
+  serializeJson(doc, Serial);
+  Serial.println();
 }
 
 void send_flush_start_event() {
-  Serial.println(F("{\"type\":\"event\",\"event\":\"flush_start\"}"));
+  doc.clear();
+
+  doc["type"] = "event";
+  doc["event"] = "flush_start";
+  serializeJson(doc, Serial);
+  Serial.println();
 }
 
 void send_flush_done_event() {
-  Serial.println(F("{\"type\":\"event\",\"event\":\"flush_end\"}"));
+  doc.clear();
+
+  doc["type"] = "event";
+  doc["event"] = "flush_end";
+  serializeJson(doc, Serial);
+  Serial.println();
 }
 
 State waiting_tick() {
@@ -417,11 +451,13 @@ State brewing_tick() {
   const unsigned short current_brew_report_window = now / 1000;
   if (current_brew_report_window != last_brew_report_window) {
     last_brew_report_window = current_brew_report_window;
-    Serial.print(F("{\"type\":\"brew\",\"weight\":"));
-    Serial.print(weight);
-    Serial.print(F(",\"target_weight\":"));
-    Serial.print(desired_weight_in_grams);
-    Serial.println(F("}"));
+    doc.clear();
+
+    doc["type"] = "brew";
+    doc["weight"] = weight;
+    doc["target_weight"] = desired_weight_in_grams;
+    serializeJson(doc, Serial);
+    Serial.println();
   }
 
   State next_state;
@@ -766,19 +802,17 @@ void report_stats() {
   const unsigned short current_report_window = now / 1000;
   if (current_report_window != last_report_window) {
     last_report_window = current_report_window;
-    Serial.print(F("{\"type\":\"temp\",\"boiler_temp_err\":"));
-    Serial.print(boiler_temp_error ? F("true") : F("false"));
-    Serial.print(F(",\"boiler_temp\":"));
-    Serial.print(boiler_temp);
-    Serial.print(F(",\"target_boiler_temp\":"));
-    Serial.print(desired_pump_temperature);
-    Serial.print(F(",\"grouphead_temp_err\":"));
-    Serial.print(grouphead_temp_error ? F("true") : F("false"));
-    Serial.print(F(",\"grouphead_temp\":"));
-    Serial.print(grouphead_temp);
-    Serial.print(F(",\"state\":\""));
-    Serial.print(state_as_string(current_state));
-    Serial.println(F("\"}"));
+    doc.clear();
+
+    doc["type"] = "temp";
+    doc["boiler_temp_err"] = boiler_temp_error;
+    doc["boiler_temp"] = boiler_temp;
+    doc["target_boiler_temp"] = desired_pump_temperature;
+    doc["grouphead_temp_err"] = grouphead_temp_error;
+    doc["grouphead_temp"] = grouphead_temp;
+    doc["state"] = state_as_string(current_state);
+    serializeJson(doc, Serial);
+    Serial.println();
   }
 }
 
