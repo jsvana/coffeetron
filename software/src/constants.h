@@ -1,9 +1,9 @@
 #pragma once
 
-#define HX711_CLK 8
-#define HX711_DOUT 9
-#define HEATER_RELAY 5
-#define PUMP 6
+#define HX711_CLK 6
+#define HX711_DOUT 5
+#define HEATER_RELAY 10
+#define PUMP 11
 #define TEMP_OK_LED 12
 
 #define SAMPLE_COUNT 5

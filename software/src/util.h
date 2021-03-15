@@ -50,7 +50,7 @@ public:
   TempReading(float reading, bool is_error)
       : reading_(reading), is_error_(is_error) {}
 
-  float reading() {
+  float reading() const {
     if (is_error_) {
       return 0.0;
     }
@@ -58,7 +58,7 @@ public:
     return reading_;
   }
 
-  bool is_error() { return is_error_; }
+  bool is_error() const { return is_error_; }
 };
 
 TempReading temp_error() { return TempReading(0.0, /* is_error = */ true); }

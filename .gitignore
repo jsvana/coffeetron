@@ -32,3 +32,10 @@ fp-info-cache
 software/data_consumer/*.png
 software/data_consumer/*.json
 software/data_consumer/config.py
+
+# Platformio
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+.pio

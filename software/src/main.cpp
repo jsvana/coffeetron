@@ -1,3 +1,6 @@
+#include <Arduino.h>
+
+#include <Adafruit_I2CDevice.h>
 #include <Adafruit_SSD1306.h>
 #include <Bounce2.h>
 #include <Encoder.h>
@@ -17,8 +20,9 @@ float calibration_factor = 416.0;
 
 int desired_weight_in_grams;
 int desired_pump_temperature;
-int desired_preinfuse_pump_time_in_milliseconds;
-int desired_preinfuse_wait_time_in_milliseconds;
+// TODO: handle underflow
+unsigned long desired_preinfuse_pump_time_in_milliseconds;
+unsigned long desired_preinfuse_wait_time_in_milliseconds;
 
 bool preinfusion_enabled;
 
@@ -32,7 +36,7 @@ bool has_most_recent_pour = false;
 unsigned short last_pour_seconds;
 float last_pour_weight;
 
-Encoder encoder(2, 3);
+Encoder encoder(3, 4);
 Bounce brew_button;
 Bounce flush_button;
 Bounce encoder_button;
@@ -594,9 +598,12 @@ void heater_relay_off() { digitalWrite(HEATER_RELAY, LOW); }
 void heater_relay_on() { digitalWrite(HEATER_RELAY, HIGH); }
 
 void setup() {
+  pinMode(TEMP_OK_LED, OUTPUT);
+
   Serial.begin(9600);
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     Serial.println(F("failed to initialize OLED display"));
+    digitalWrite(TEMP_OK_LED, HIGH);
     for (;;)
       ; // Don't proceed, loop forever
   }
@@ -604,26 +611,34 @@ void setup() {
   scale.begin(HX711_DOUT, HX711_CLK);
   scale.set_scale(calibration_factor);
   scale.tare();
+  digitalWrite(TEMP_OK_LED, HIGH);
 
-  brew_button.attach(10, INPUT_PULLUP);
-  brew_button.interval(25);
+  encoder_button.attach(2, INPUT_PULLUP);
+  encoder_button.interval(25);
 
   flush_button.attach(7, INPUT_PULLUP);
   flush_button.interval(25);
 
-  encoder_button.attach(4, INPUT_PULLUP);
-  encoder_button.interval(25);
+  brew_button.attach(8, INPUT_PULLUP);
+  brew_button.interval(25);
 
-  stats_button.attach(11, INPUT_PULLUP);
+  stats_button.attach(9, INPUT_PULLUP);
   stats_button.interval(25);
+
+  // blue white == A0 == pump temp
+  // blue == A1 == grouphead temp
+  // brown white == GND
+  // brown == VCC
+  // orange white == pump relay
 
   pinMode(PUMP, OUTPUT);
   pinMode(HEATER_RELAY, OUTPUT);
-  pinMode(TEMP_OK_LED, OUTPUT);
+  // pinMode(TEMP_OK_LED, OUTPUT);
 
   digitalWrite(PUMP, LOW);
   digitalWrite(HEATER_RELAY, LOW);
-  digitalWrite(TEMP_OK_LED, LOW);
+  // digitalWrite(TEMP_OK_LED, LOW);
+  digitalWrite(TEMP_OK_LED, HIGH);
 
   desired_pump_temperature = INITIAL_DESIRED_PUMP_TEMPERATURE;
   desired_weight_in_grams = INITIAL_DESIRED_WEIGHT_GRAMS;
@@ -688,7 +703,7 @@ void control_heater_relay() {
   }
 }
 
-__FlashStringHelper *state_as_string(const State &state) {
+const __FlashStringHelper *state_as_string(const State &state) {
   switch (state) {
   case State::Waiting:
     return F("waiting");
