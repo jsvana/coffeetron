@@ -18,7 +18,7 @@
 
 #define MIN_TEMP_F -10.0
 #define MAX_TEMP_F 350.0
-#define ACCEPTABLE_TEMP_ERROR 1.0
+#define ACCEPTABLE_TEMP_ERROR 2.0
 
 #define FLUSH_TIME_MILLIS 1000
 
@@ -31,7 +31,7 @@
 
 #define PID_KP 4.5
 #define PID_KI 0.175
-#define PID_KD 0.7
+#define PID_KD 1.0
 
 // Cute coffee cup bitmap to display, 128x32 pixels
 const unsigned char coffee_bitmap[] PROGMEM = {

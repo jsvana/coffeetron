@@ -13,7 +13,7 @@ Adafruit_SSD1306 display(128, 64, &Wire, -1);
 HX711 scale;
 
 // Calibrated to my specific scale, YMMV
-float calibration_factor = 416;
+float calibration_factor = 416.0;
 
 int desired_weight_in_grams;
 int desired_pump_temperature;
@@ -112,7 +112,12 @@ void send_brew_start_event() {
 }
 
 void send_brew_done_event() {
-  Serial.println(F("{\"type\":\"event\",\"event\":\"brew_end\"}"));
+  Serial.print(
+      F("{\"type\":\"event\",\"event\":\"brew_end\",\"total_seconds\":"));
+  Serial.print(last_pour_seconds);
+  Serial.print(F(",\"total_weight\":"));
+  Serial.print(last_pour_weight);
+  Serial.print(F("}"));
 }
 
 void send_flush_start_event() {
@@ -410,6 +415,8 @@ State brewing_tick() {
     last_brew_report_window = current_brew_report_window;
     Serial.print(F("{\"type\":\"brew\",\"weight\":"));
     Serial.print(weight);
+    Serial.println(F(",\"target_weight\":"));
+    Serial.print(desired_weight_in_grams);
     Serial.println(F("}"));
   }
 
@@ -598,13 +605,13 @@ void setup() {
   scale.set_scale(calibration_factor);
   scale.tare();
 
-  brew_button.attach(4, INPUT_PULLUP);
+  brew_button.attach(10, INPUT_PULLUP);
   brew_button.interval(25);
 
   flush_button.attach(7, INPUT_PULLUP);
   flush_button.interval(25);
 
-  encoder_button.attach(10, INPUT_PULLUP);
+  encoder_button.attach(4, INPUT_PULLUP);
   encoder_button.interval(25);
 
   stats_button.attach(11, INPUT_PULLUP);
@@ -681,6 +688,47 @@ void control_heater_relay() {
   }
 }
 
+__FlashStringHelper *state_as_string(const State &state) {
+  switch (state) {
+  case State::Waiting:
+    return F("waiting");
+
+  case State::ConfigurePumpTemp:
+    return F("configure_pump_temp");
+
+  case State::ConfigureWeight:
+    return F("configure_weight");
+
+  case State::ConfigurePreinfuseEnabled:
+    return F("configure_preinfuse_enabled");
+
+  case State::ConfigurePreinfusePumpTime:
+    return F("configure_preinfuse_pump_time");
+
+  case State::ConfigurePreinfuseWaitTime:
+    return F("configure_preinfuse_wait_time");
+
+  case State::Flushing:
+    return F("flushing");
+
+  case State::Preinfusing:
+    return F("preinfusing");
+
+  case State::WaitingAfterPreinfusing:
+    return F("waiting_after_preinfusing");
+
+  case State::Brewing:
+    return F("brewing");
+
+  case State::BrewStats:
+    return F("brew_stats");
+
+  case State::Error:
+  default:
+    return F("error");
+  }
+}
+
 void report_stats() {
   const auto boiler_reading = temps.average_pump_temperature();
   bool boiler_temp_error = false;
@@ -713,7 +761,9 @@ void report_stats() {
     Serial.print(grouphead_temp_error ? F("true") : F("false"));
     Serial.print(F(",\"grouphead_temp\":"));
     Serial.print(grouphead_temp);
-    Serial.println(F("}"));
+    Serial.print(F(",\"state\":\""));
+    Serial.print(state_as_string(current_state));
+    Serial.println(F("\"}"));
   }
 }
 

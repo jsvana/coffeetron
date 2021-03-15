@@ -10,5 +10,4 @@ python_version = "3.9"
 
 [packages]
 pyserial = "*"
-matplotlib = "*"
 influxdb-client = "*"
