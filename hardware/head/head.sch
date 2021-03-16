@@ -1,0 +1,454 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Connector:Conn_01x05_Male J8
+U 1 1 604B08C7
+P 6200 5850
+F 0 "J8" H 6172 5782 50  0000 R CNN
+F 1 "Rotary_Encoder" H 6172 5873 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 6200 5850 50  0001 C CNN
+F 3 "~" H 6200 5850 50  0001 C CNN
+	1    6200 5850
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR0103
+U 1 1 604B1FDA
+P 6000 5650
+F 0 "#PWR0103" H 6000 5400 50  0001 C CNN
+F 1 "GND" V 6005 5522 50  0000 R CNN
+F 2 "" H 6000 5650 50  0001 C CNN
+F 3 "" H 6000 5650 50  0001 C CNN
+	1    6000 5650
+	0    1    1    0   
+$EndComp
+Text GLabel 6000 5850 0    50   Input ~ 0
+ENCODER_BUTTON
+Text GLabel 6000 5950 0    50   Input ~ 0
+ENCODER_DATA
+Text GLabel 6000 6050 0    50   Input ~ 0
+ENCODER_CLOCK
+$Comp
+L Connector:Conn_01x04_Male J6
+U 1 1 604B43FD
+P 6200 4700
+F 0 "J6" H 6172 4582 50  0000 R CNN
+F 1 "Display" H 6172 4673 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 6200 4700 50  0001 C CNN
+F 3 "~" H 6200 4700 50  0001 C CNN
+	1    6200 4700
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector:Conn_01x04_Male J7
+U 1 1 604B63C3
+P 6200 5350
+F 0 "J7" H 6172 5232 50  0000 R CNN
+F 1 "HX711" H 6172 5323 50  0000 R CNN
+F 2 "Connector_RJ:RJ14_Connfly_DS1133-S4_Horizontal" H 6200 5350 50  0001 C CNN
+F 3 "~" H 6200 5350 50  0001 C CNN
+	1    6200 5350
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR0105
+U 1 1 604B6949
+P 6000 4500
+F 0 "#PWR0105" H 6000 4250 50  0001 C CNN
+F 1 "GND" V 6005 4372 50  0000 R CNN
+F 2 "" H 6000 4500 50  0001 C CNN
+F 3 "" H 6000 4500 50  0001 C CNN
+	1    6000 4500
+	0    1    1    0   
+$EndComp
+Text GLabel 6000 4700 0    50   Input ~ 0
+DISPLAY_SCL
+Text GLabel 6000 4800 0    50   Input ~ 0
+DISPLAY_SDA
+$Comp
+L power:GND #PWR0107
+U 1 1 604B7917
+P 6000 5150
+F 0 "#PWR0107" H 6000 4900 50  0001 C CNN
+F 1 "GND" V 6005 5022 50  0000 R CNN
+F 2 "" H 6000 5150 50  0001 C CNN
+F 3 "" H 6000 5150 50  0001 C CNN
+	1    6000 5150
+	0    1    1    0   
+$EndComp
+Text GLabel 6000 5250 0    50   Input ~ 0
+HX711_DT
+Text GLabel 6000 5350 0    50   Input ~ 0
+HX711_SCK
+$Comp
+L Connector:Conn_01x02_Male J5
+U 1 1 604B8D51
+P 6200 4200
+F 0 "J5" H 6172 4082 50  0000 R CNN
+F 1 "Temp_Ok" H 6172 4173 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6200 4200 50  0001 C CNN
+F 3 "~" H 6200 4200 50  0001 C CNN
+	1    6200 4200
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR0109
+U 1 1 604B98BA
+P 5700 4100
+F 0 "#PWR0109" H 5700 3850 50  0001 C CNN
+F 1 "GND" V 5705 3972 50  0000 R CNN
+F 2 "" H 5700 4100 50  0001 C CNN
+F 3 "" H 5700 4100 50  0001 C CNN
+	1    5700 4100
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R R1
+U 1 1 604BA74B
+P 5850 4100
+F 0 "R1" V 5643 4100 50  0000 C CNN
+F 1 "220" V 5734 4100 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 5780 4100 50  0001 C CNN
+F 3 "~" H 5850 4100 50  0001 C CNN
+	1    5850 4100
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector:Conn_01x02_Male J4
+U 1 1 604BDDA4
+P 6200 3200
+F 0 "J4" H 6172 3082 50  0000 R CNN
+F 1 "Brew_Button" H 6172 3173 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6200 3200 50  0001 C CNN
+F 3 "~" H 6200 3200 50  0001 C CNN
+	1    6200 3200
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR0110
+U 1 1 604BE4DB
+P 6000 3100
+F 0 "#PWR0110" H 6000 2850 50  0001 C CNN
+F 1 "GND" V 6005 2972 50  0000 R CNN
+F 2 "" H 6000 3100 50  0001 C CNN
+F 3 "" H 6000 3100 50  0001 C CNN
+	1    6000 3100
+	0    1    1    0   
+$EndComp
+Text GLabel 6000 4200 0    50   Input ~ 0
+TEMP_OK
+Text GLabel 6000 3200 0    50   Input ~ 0
+BREW_BUTTON
+$Comp
+L Connector:Conn_01x02_Male J3
+U 1 1 604C5045
+P 6200 2800
+F 0 "J3" H 6172 2682 50  0000 R CNN
+F 1 "Flush_Button" H 6172 2773 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6200 2800 50  0001 C CNN
+F 3 "~" H 6200 2800 50  0001 C CNN
+	1    6200 2800
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR0111
+U 1 1 604C54A0
+P 6000 2700
+F 0 "#PWR0111" H 6000 2450 50  0001 C CNN
+F 1 "GND" V 6005 2572 50  0000 R CNN
+F 2 "" H 6000 2700 50  0001 C CNN
+F 3 "" H 6000 2700 50  0001 C CNN
+	1    6000 2700
+	0    1    1    0   
+$EndComp
+Text GLabel 6000 2800 0    50   Input ~ 0
+FLUSH_BUTTON
+$Comp
+L Connector:Conn_01x02_Male J2
+U 1 1 604D0F1E
+P 6200 3650
+F 0 "J2" H 6172 3532 50  0000 R CNN
+F 1 "Stats_Button" H 6172 3623 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6200 3650 50  0001 C CNN
+F 3 "~" H 6200 3650 50  0001 C CNN
+	1    6200 3650
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR0112
+U 1 1 604D135D
+P 6000 3550
+F 0 "#PWR0112" H 6000 3300 50  0001 C CNN
+F 1 "GND" V 6005 3422 50  0000 R CNN
+F 2 "" H 6000 3550 50  0001 C CNN
+F 3 "" H 6000 3550 50  0001 C CNN
+	1    6000 3550
+	0    1    1    0   
+$EndComp
+Text GLabel 6000 3650 0    50   Input ~ 0
+STATS_BUTTON
+$Comp
+L Connector:DB9_Male J1
+U 1 1 604D2002
+P 6150 1750
+F 0 "J1" H 6330 1796 50  0000 L CNN
+F 1 "DB9_Male" H 6330 1705 50  0000 L CNN
+F 2 "Connector_Dsub:DSUB-9_Male_Horizontal_P2.77x2.84mm_EdgePinOffset4.94mm_Housed_MountingHolesOffset7.48mm" H 6150 1750 50  0001 C CNN
+F 3 " ~" H 6150 1750 50  0001 C CNN
+	1    6150 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0113
+U 1 1 604D40DB
+P 5850 2150
+F 0 "#PWR0113" H 5850 1900 50  0001 C CNN
+F 1 "GND" V 5855 2022 50  0000 R CNN
+F 2 "" H 5850 2150 50  0001 C CNN
+F 3 "" H 5850 2150 50  0001 C CNN
+	1    5850 2150
+	0    1    1    0   
+$EndComp
+Text GLabel 5850 1750 0    50   Input ~ 0
+PUMP_TEMP
+Text GLabel 5850 1550 0    50   Input ~ 0
+GROUPHEAD_TEMP
+Text GLabel 5850 1350 0    50   Input ~ 0
+PUMP
+Text GLabel 5850 2050 0    50   Input ~ 0
+HEATER_RELAY
+NoConn ~ 5850 1450
+NoConn ~ 5850 1650
+NoConn ~ 5850 1850
+$Comp
+L teensy:Teensy4.0 U1
+U 1 1 604FC8EB
+P 3050 3900
+F 0 "U1" H 3050 5515 50  0000 C CNN
+F 1 "Teensy4.0" H 3050 5424 50  0000 C CNN
+F 2 "teensy:Teensy40_SMT" H 2650 4100 50  0001 C CNN
+F 3 "" H 2650 4100 50  0001 C CNN
+	1    3050 3900
+	1    0    0    -1  
+$EndComp
+Text GLabel 1950 5050 0    50   Input ~ 0
+DISPLAY_SCL
+Text GLabel 1950 4950 0    50   Input ~ 0
+DISPLAY_SDA
+Text GLabel 1950 4550 0    50   Input ~ 0
+PUMP_TEMP
+Text GLabel 1950 4650 0    50   Input ~ 0
+GROUPHEAD_TEMP
+Text GLabel 1950 2850 0    50   Input ~ 0
+ENCODER_BUTTON
+Text GLabel 1950 2950 0    50   Input ~ 0
+ENCODER_DATA
+Text GLabel 1950 3050 0    50   Input ~ 0
+ENCODER_CLOCK
+Text GLabel 1950 3150 0    50   Input ~ 0
+FLUSH_BUTTON
+Text GLabel 1950 3250 0    50   Input ~ 0
+BREW_BUTTON
+Text GLabel 1950 3350 0    50   Input ~ 0
+STATS_BUTTON
+Text GLabel 1950 3450 0    50   Input ~ 0
+HX711_DT
+Text GLabel 1950 3550 0    50   Input ~ 0
+HX711_SCK
+Text GLabel 1950 3750 0    50   Input ~ 0
+PUMP
+Text GLabel 1950 3850 0    50   Input ~ 0
+HEATER_RELAY
+Text GLabel 1950 3650 0    50   Input ~ 0
+TEMP_OK
+$Comp
+L power:GND #PWR01
+U 1 1 60520795
+P 1950 2550
+F 0 "#PWR01" H 1950 2300 50  0001 C CNN
+F 1 "GND" V 1955 2422 50  0000 R CNN
+F 2 "" H 1950 2550 50  0001 C CNN
+F 3 "" H 1950 2550 50  0001 C CNN
+	1    1950 2550
+	0    1    1    0   
+$EndComp
+$Comp
+L power:+3.3V #PWR06
+U 1 1 605213C3
+P 5850 1950
+F 0 "#PWR06" H 5850 1800 50  0001 C CNN
+F 1 "+3.3V" H 5865 2123 50  0000 C CNN
+F 2 "" H 5850 1950 50  0001 C CNN
+F 3 "" H 5850 1950 50  0001 C CNN
+	1    5850 1950
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR05
+U 1 1 60521EE0
+P 4150 5050
+F 0 "#PWR05" H 4150 4900 50  0001 C CNN
+F 1 "+3.3V" H 4165 5223 50  0000 C CNN
+F 2 "" H 4150 5050 50  0001 C CNN
+F 3 "" H 4150 5050 50  0001 C CNN
+	1    4150 5050
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR02
+U 1 1 60522C1C
+P 1950 4150
+F 0 "#PWR02" H 1950 3900 50  0001 C CNN
+F 1 "GND" V 1955 4022 50  0000 R CNN
+F 2 "" H 1950 4150 50  0001 C CNN
+F 3 "" H 1950 4150 50  0001 C CNN
+	1    1950 4150
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR04
+U 1 1 60523242
+P 4150 4950
+F 0 "#PWR04" H 4150 4700 50  0001 C CNN
+F 1 "GND" V 4155 4822 50  0000 R CNN
+F 2 "" H 4150 4950 50  0001 C CNN
+F 3 "" H 4150 4950 50  0001 C CNN
+	1    4150 4950
+	0    -1   -1   0   
+$EndComp
+NoConn ~ 1950 3950
+NoConn ~ 1950 4050
+NoConn ~ 1950 2750
+NoConn ~ 1950 2650
+NoConn ~ 1950 4250
+NoConn ~ 1950 4350
+NoConn ~ 1950 4450
+NoConn ~ 1950 4750
+NoConn ~ 1950 4850
+NoConn ~ 1950 5150
+NoConn ~ 1950 5250
+NoConn ~ 4150 2550
+NoConn ~ 4150 2650
+NoConn ~ 4150 2750
+NoConn ~ 4150 2850
+NoConn ~ 4150 2950
+NoConn ~ 4150 3050
+NoConn ~ 4150 3150
+NoConn ~ 4150 3350
+NoConn ~ 4150 3450
+NoConn ~ 4150 3550
+NoConn ~ 4150 3650
+NoConn ~ 4150 3750
+NoConn ~ 4150 3850
+NoConn ~ 4150 3950
+NoConn ~ 4150 4050
+NoConn ~ 4150 4150
+NoConn ~ 4150 4250
+NoConn ~ 4150 4350
+NoConn ~ 4150 4450
+NoConn ~ 4150 4750
+NoConn ~ 4150 4850
+NoConn ~ 4150 5150
+NoConn ~ 4150 5250
+$Comp
+L power:GND #PWR03
+U 1 1 60526591
+P 4150 3250
+F 0 "#PWR03" H 4150 3000 50  0001 C CNN
+F 1 "GND" V 4155 3122 50  0000 R CNN
+F 2 "" H 4150 3250 50  0001 C CNN
+F 3 "" H 4150 3250 50  0001 C CNN
+	1    4150 3250
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR0101
+U 1 1 60527563
+P 6000 5750
+F 0 "#PWR0101" H 6000 5600 50  0001 C CNN
+F 1 "+3.3V" V 6015 5878 50  0000 L CNN
+F 2 "" H 6000 5750 50  0001 C CNN
+F 3 "" H 6000 5750 50  0001 C CNN
+	1    6000 5750
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR0102
+U 1 1 60528F10
+P 6000 5450
+F 0 "#PWR0102" H 6000 5300 50  0001 C CNN
+F 1 "+3.3V" V 6015 5578 50  0000 L CNN
+F 2 "" H 6000 5450 50  0001 C CNN
+F 3 "" H 6000 5450 50  0001 C CNN
+	1    6000 5450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR0104
+U 1 1 605298C9
+P 6000 4600
+F 0 "#PWR0104" H 6000 4450 50  0001 C CNN
+F 1 "+3.3V" V 6015 4728 50  0000 L CNN
+F 2 "" H 6000 4600 50  0001 C CNN
+F 3 "" H 6000 4600 50  0001 C CNN
+	1    6000 4600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Mechanical:MountingHole_Pad H2
+U 1 1 6053C7F2
+P 3800 1200
+F 0 "H2" H 3900 1249 50  0000 L CNN
+F 1 "MountingHole_Pad" H 3900 1158 50  0000 L CNN
+F 2 "MountingHole:MountingHole_2.5mm_Pad" H 3800 1200 50  0001 C CNN
+F 3 "~" H 3800 1200 50  0001 C CNN
+	1    3800 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole_Pad H1
+U 1 1 6053D9C6
+P 2900 1200
+F 0 "H1" H 3000 1249 50  0000 L CNN
+F 1 "MountingHole_Pad" H 3000 1158 50  0000 L CNN
+F 2 "MountingHole:MountingHole_2.5mm_Pad" H 2900 1200 50  0001 C CNN
+F 3 "~" H 2900 1200 50  0001 C CNN
+	1    2900 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR07
+U 1 1 6053DD53
+P 2900 1300
+F 0 "#PWR07" H 2900 1050 50  0001 C CNN
+F 1 "GND" V 2905 1172 50  0000 R CNN
+F 2 "" H 2900 1300 50  0001 C CNN
+F 3 "" H 2900 1300 50  0001 C CNN
+	1    2900 1300
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR08
+U 1 1 6053E6FD
+P 3800 1300
+F 0 "#PWR08" H 3800 1050 50  0001 C CNN
+F 1 "GND" V 3805 1172 50  0000 R CNN
+F 2 "" H 3800 1300 50  0001 C CNN
+F 3 "" H 3800 1300 50  0001 C CNN
+	1    3800 1300
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC
