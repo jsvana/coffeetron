@@ -33,7 +33,7 @@ F 1 "PumpConnect" H 5130 5201 50  0000 L CNN
 F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal" H 5050 5300 50  0001 C CNN
 F 3 "~" H 5050 5300 50  0001 C CNN
 	1    5050 5300
-	1    0    0    -1  
+	1    0    0    1   
 $EndComp
 $Comp
 L Device:R R4
@@ -342,9 +342,9 @@ Wire Wire Line
 Wire Wire Line
 	4500 5050 4650 5050
 Wire Wire Line
-	4650 5050 4650 5400
+	4650 5050 4650 5200
 Wire Wire Line
-	4650 5400 4850 5400
+	4650 5200 4850 5200
 $Comp
 L Device:R R2
 U 1 1 604696BA
