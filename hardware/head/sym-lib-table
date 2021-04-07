@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name boost_converter)(type Legacy)(uri ${KIPRJMOD}/boost_converter.lib)(options "")(descr ""))
+)
