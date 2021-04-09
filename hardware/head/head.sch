@@ -1163,63 +1163,28 @@ F 3 "" H 2850 6800 50  0001 C CNN
 $EndComp
 Connection ~ 2850 6800
 $Comp
-L Transistor_FET:IRF540N Q1
-U 1 1 60728D2B
-P 5250 6350
-F 0 "Q1" H 5454 6396 50  0000 L CNN
-F 1 "IRF540N" H 5454 6305 50  0000 L CNN
-F 2 "Package_TO_SOT_THT:TO-220-3_Vertical" H 5500 6275 50  0001 L CIN
-F 3 "http://www.irf.com/product-info/datasheets/data/irf540n.pdf" H 5250 6350 50  0001 L CNN
-	1    5250 6350
-	1    0    0    -1  
-$EndComp
-Text GLabel 5050 6350 0    50   Input ~ 0
-BREW_READY
-$Comp
 L power:+5V #PWR016
 U 1 1 6072C196
-P 5350 6150
-F 0 "#PWR016" H 5350 6000 50  0001 C CNN
-F 1 "+5V" H 5365 6323 50  0000 C CNN
-F 2 "" H 5350 6150 50  0001 C CNN
-F 3 "" H 5350 6150 50  0001 C CNN
-	1    5350 6150
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector:Conn_01x04_Male J4
-U 1 1 6072E9C5
-P 5550 6750
-F 0 "J4" H 5522 6632 50  0000 R CNN
-F 1 "Brew_Button" H 5522 6723 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 5550 6750 50  0001 C CNN
-F 3 "~" H 5550 6750 50  0001 C CNN
-	1    5550 6750
-	-1   0    0    1   
+P 5350 6750
+F 0 "#PWR016" H 5350 6600 50  0001 C CNN
+F 1 "+5V" H 5365 6923 50  0000 C CNN
+F 2 "" H 5350 6750 50  0001 C CNN
+F 3 "" H 5350 6750 50  0001 C CNN
+	1    5350 6750
+	0    -1   -1   0   
 $EndComp
 $Comp
 L power:GND #PWR017
 U 1 1 6072F3F3
-P 5350 6750
-F 0 "#PWR017" H 5350 6500 50  0001 C CNN
-F 1 "GND" V 5355 6622 50  0000 R CNN
-F 2 "" H 5350 6750 50  0001 C CNN
-F 3 "" H 5350 6750 50  0001 C CNN
-	1    5350 6750
+P 5350 6650
+F 0 "#PWR017" H 5350 6400 50  0001 C CNN
+F 1 "GND" V 5355 6522 50  0000 R CNN
+F 2 "" H 5350 6650 50  0001 C CNN
+F 3 "" H 5350 6650 50  0001 C CNN
+	1    5350 6650
 	0    1    1    0   
 $EndComp
-$Comp
-L power:GND #PWR018
-U 1 1 6072F88E
-P 5350 6850
-F 0 "#PWR018" H 5350 6600 50  0001 C CNN
-F 1 "GND" V 5355 6722 50  0000 R CNN
-F 2 "" H 5350 6850 50  0001 C CNN
-F 3 "" H 5350 6850 50  0001 C CNN
-	1    5350 6850
-	0    1    1    0   
-$EndComp
-Text GLabel 5350 6650 0    50   Input ~ 0
+Text GLabel 5350 6550 0    50   Input ~ 0
 BREW_BUTTON
 Text GLabel 1900 2900 0    50   Input ~ 0
 BREW_READY
@@ -1348,6 +1313,41 @@ F 1 "GND" V 3805 622 50  0000 R CNN
 F 2 "" H 3800 750 50  0001 C CNN
 F 3 "" H 3800 750 50  0001 C CNN
 	1    3800 750 
+	1    0    0    -1  
+$EndComp
+Text GLabel 5050 7050 0    50   Input ~ 0
+BREW_READY
+$Comp
+L Connector:Conn_01x04_Male J4
+U 1 1 6072E9C5
+P 5550 6750
+F 0 "J4" H 5522 6632 50  0000 R CNN
+F 1 "Brew_Button" H 5522 6723 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 5550 6750 50  0001 C CNN
+F 3 "~" H 5550 6750 50  0001 C CNN
+	1    5550 6750
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR018
+U 1 1 6072F88E
+P 5350 7250
+F 0 "#PWR018" H 5350 7000 50  0001 C CNN
+F 1 "GND" V 5355 7122 50  0000 R CNN
+F 2 "" H 5350 7250 50  0001 C CNN
+F 3 "" H 5350 7250 50  0001 C CNN
+	1    5350 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:IRF540N Q1
+U 1 1 60728D2B
+P 5250 7050
+F 0 "Q1" H 5454 7096 50  0000 L CNN
+F 1 "IRF540N" H 5454 7005 50  0000 L CNN
+F 2 "Package_TO_SOT_THT:TO-220-3_Vertical" H 5500 6975 50  0001 L CIN
+F 3 "http://www.irf.com/product-info/datasheets/data/irf540n.pdf" H 5250 7050 50  0001 L CNN
+	1    5250 7050
 	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
